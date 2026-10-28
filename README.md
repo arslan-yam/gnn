@@ -1,2 +1,2 @@
-# Ann
+# gnn
 impact of attention on oversmoothing in gin
