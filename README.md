@@ -1,2 +1,2 @@
 # gnn
-impact of attention on oversmoothing in gin
+impact of attention on oversmoothing in gnn
