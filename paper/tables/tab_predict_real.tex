@@ -1,0 +1,21 @@
+\begin{tabular}{llrrcccc}
+\toprule
+graph & metric & clusters & predicted & \multicolumn{2}{c}{ARI, $t_1=0$ / $20$} & \multicolumn{2}{c}{false persist / merge (\%)}\\
+\midrule
+Roman-empire & PCA, scale $0.5$ & 5{,}758 & 5{,}682 & 0.985 & 0.994 & 0.2 & 0.7\\
+ & PCA, scale $1$ & 10{,}150 & 8{,}985 & 0.874 & 0.882 & 1.6 & 13.9\\
+ & PCA, scale $2$ & 17{,}206 & 16{,}651 & 0.786 & 0.803 & 1.4 & 16.5\\
+ & LDA, margin $2\kappa$ & 22{,}591 & 22{,}591 & 1.000 & 1.000 & 0.0 & 0.0\\
+ & LDA, margin $0.4\kappa$ & 22{,}282 & 22{,}036 & 0.713 & 0.712 & 0.0 & 40.5\\
+\midrule
+Amazon-ratings & PCA, scale $0.5$ & 718 & 427 & 0.678 & 0.733 & 5.0 & 3.0\\
+ & PCA, scale $1$ & 6{,}173 & 4{,}927 & 0.534 & 0.593 & 3.3 & 19.5\\
+ & PCA, scale $2$ & 18{,}268 & 17{,}161 & 0.465 & 0.454 & 0.6 & 28.5\\
+ & LDA, margin $2\kappa$ & 24{,}319 & 24{,}300 & 0.944 & 0.956 & 0.0 & 11.8\\
+ & LDA, margin $0.4\kappa$ & 21{,}652 & 20{,}805 & 0.647 & 0.670 & 0.1 & 39.3\\
+\midrule
+Peptides-func & PCA, scale $0.5$ & 1.1 & 1.1 & 1.000 & 1.000 & -- & --\\
+ & PCA, scale $1$ & 92.8 & 76.2 & 0.893 & 0.790 & -- & --\\
+ & PCA, scale $2$ & 129.7 & 129.1 & 0.986 & 0.986 & -- & --\\
+\bottomrule
+\end{tabular}

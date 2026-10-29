@@ -1,0 +1,38 @@
+[    0.0s] validated enclosures kappa(t0; rho, rho)
+[   16.4s]   rho=0.1 t0=11: [1.30070, 1.30922]
+[   31.0s]   rho=0.1 t0=30: [1.25749, 1.26601]
+[   46.4s]   rho=0.1 t0=100: [1.22139, 1.23417]
+[   63.6s]   rho=0.1 t0=300: [1.19635, 1.21553]
+[   82.0s]   rho=0.1 t0=1000: [1.17381, 1.20258]
+[   96.9s]   rho=0.25 t0=11: [1.39194, 1.39447]
+[  112.4s]   rho=0.25 t0=30: [1.32948, 1.33326]
+[  128.6s]   rho=0.25 t0=100: [1.28007, 1.28859]
+[  145.9s]   rho=0.25 t0=300: [1.24735, 1.25587]
+[  164.9s]   rho=0.25 t0=1000: [1.21905, 1.23183]
+[  180.1s]   rho=0.5 t0=11: [1.46442, 1.46554]
+[  195.7s]   rho=0.5 t0=30: [1.38557, 1.38810]
+[  211.3s]   rho=0.5 t0=100: [1.32504, 1.32883]
+[  226.9s]   rho=0.5 t0=300: [1.28598, 1.29166]
+[  243.8s]   rho=0.5 t0=1000: [1.25298, 1.26576]
+[  256.4s]   rho=1.0 t0=11: [1.53859, 1.53909]
+[  269.3s]   rho=1.0 t0=30: [1.44247, 1.44359]
+[  283.5s]   rho=1.0 t0=100: [1.37028, 1.37280]
+[  297.5s]   rho=1.0 t0=300: [1.32457, 1.32836]
+[  312.4s]   rho=1.0 t0=1000: [1.28665, 1.29517]
+[  312.4s] continuum limit
+[  331.7s]   rho=0.1: residual at L=2.40: +0.589, at L=1e5: +0.141 (three-term: +0.0093)
+[  375.0s]   rho=0.25: residual at L=2.40: +0.342, at L=1e5: +0.116 (three-term: +0.0049)
+[  424.1s]   rho=0.5: residual at L=2.40: +0.166, at L=1e5: +0.099 (three-term: +0.0023)
+[  468.4s]   rho=1.0: residual at L=2.40: -0.004, at L=1e5: +0.082 (three-term: +0.0002)
+[  468.4s] barrier inequalities (60 digits)
+[  468.8s]   {'rA': 1, 'rB': 1, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': None}
+[  469.1s]   {'rA': 1, 'rB': 1, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': None}
+[  469.4s]   {'rA': 0.5, 'rB': 0.5, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': None}
+[  469.7s]   {'rA': 0.5, 'rB': 0.5, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': None}
+[  470.1s]   {'rA': 0.25, 'rB': 0.25, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': None}
+[  470.4s]   {'rA': 0.25, 'rB': 0.25, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': 92.24672776479748, 'merge_fails_up_to': None}
+[  470.7s]   {'rA': 0.1, 'rB': 0.1, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': 9.093495859450668, 'merge_fails_up_to': None}
+[  471.0s]   {'rA': 0.1, 'rB': 0.1, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': 129.1676890012373, 'merge_fails_up_to': None}
+[  471.3s]   {'rA': 1, 'rB': 0.25, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': None}
+[  471.5s]   {'rA': 1, 'rB': 0.25, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': 131.75104278126204, 'merge_fails_up_to': None}
+[  471.6s] done

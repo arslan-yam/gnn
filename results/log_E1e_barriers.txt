@@ -1,0 +1,23 @@
+[    0.0s] barrier inequalities (precision grows with tau)
+[   20.1s]   {'order': 2, 'rA': 1, 'rB': 1, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': None}
+[   38.3s]   {'order': 2, 'rA': 1, 'rB': 1, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': None}
+[   57.8s]   {'order': 2, 'rA': 0.5, 'rB': 0.5, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': None}
+[   76.4s]   {'order': 2, 'rA': 0.5, 'rB': 0.5, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': None}
+[   94.2s]   {'order': 2, 'rA': 0.25, 'rB': 0.25, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': None}
+[  111.9s]   {'order': 2, 'rA': 0.25, 'rB': 0.25, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': 92.24672776479748, 'merge_fails_up_to': None}
+[  132.9s]   {'order': 2, 'rA': 0.1, 'rB': 0.1, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': 9.093495859450668, 'merge_fails_up_to': None}
+[  154.1s]   {'order': 2, 'rA': 0.1, 'rB': 0.1, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': 1728.9259399723583, 'merge_fails_up_to': None}
+[  174.4s]   {'order': 2, 'rA': 1, 'rB': 0.25, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': None}
+[  195.1s]   {'order': 2, 'rA': 1, 'rB': 0.25, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': None}
+[  223.7s]   {'order': 3, 'rA': 1, 'rB': 1, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': 954.4896806609692}
+[  252.6s]   {'order': 3, 'rA': 1, 'rB': 1, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': 4385.15009610221}
+[  282.3s]   {'order': 3, 'rA': 0.5, 'rB': 0.5, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': 496.55295335565995}
+[  311.5s]   {'order': 3, 'rA': 0.5, 'rB': 0.5, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': 1834.7500389061865}
+[  344.6s]   {'order': 3, 'rA': 0.25, 'rB': 0.25, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': 184.48326712411625}
+[  376.2s]   {'order': 3, 'rA': 0.25, 'rB': 0.25, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': 642.3441928322965}
+[  415.6s]   {'order': 3, 'rA': 0.1, 'rB': 0.1, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': 8.23625936896524}
+[  453.2s]   {'order': 3, 'rA': 0.1, 'rB': 0.1, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': 8101.954273098811, 'merge_fails_up_to': 31.66224421824051}
+[  489.3s]   {'order': 3, 'rA': 1, 'rB': 0.25, 'eta': 0.5, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': 629.7492086591142}
+[  525.1s]   {'order': 3, 'rA': 1, 'rB': 0.25, 'eta': 0.2, 'tau_max': 8101.954273098811, 'persist_fails_up_to': None, 'merge_fails_up_to': 2469.331986102802}
+[  525.1s] done
+exit 0

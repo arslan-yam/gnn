@@ -1,0 +1,9 @@
+# Versions used for the paper (Python 3.12, macOS on Apple M1)
+numpy==2.4.2
+scipy==1.17.1
+numba==0.68.0
+torch==2.14.1
+scikit-learn==1.8.0
+matplotlib==3.10.8
+mpmath==1.3.0
+# optional: PyMuPDF to render figure previews

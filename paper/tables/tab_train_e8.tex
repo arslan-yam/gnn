@@ -1,0 +1,33 @@
+\begin{tabular}{lccccc}
+\toprule
+model & $K=2$ & $K=4$ & $K=8$ & $K=16$ & $K=32$\\
+\midrule
+\multicolumn{6}{l}{\emph{Roman-empire}}\\
+MLP ($K=0$) & \multicolumn{5}{c}{.644\,{\tiny$\pm$.001}}\\
+GCN & .481\,{\tiny$\pm$.007} & .260\,{\tiny$\pm$.007} & .149\,{\tiny$\pm$.018} & .161\,{\tiny$\pm$.019} & .168\,{\tiny$\pm$.016}\\
+GCN + residual & \textbf{.775}\,{\tiny$\pm$.001} & .786\,{\tiny$\pm$.006} & .786\,{\tiny$\pm$.008} & \textbf{.775}\,{\tiny$\pm$.011} & .603\,{\tiny$\pm$.023}\\
+GCN + PairNorm & .566\,{\tiny$\pm$.013} & .521\,{\tiny$\pm$.004} & .412\,{\tiny$\pm$.011} & .329\,{\tiny$\pm$.008} & .266\,{\tiny$\pm$.030}\\
+GCNII & .662\,{\tiny$\pm$.010} & .658\,{\tiny$\pm$.004} & .637\,{\tiny$\pm$.004} & .613\,{\tiny$\pm$.010} & .555\,{\tiny$\pm$.019}\\
+APPNP & .549\,{\tiny$\pm$.005} & .510\,{\tiny$\pm$.003} & .501\,{\tiny$\pm$.003} & .505\,{\tiny$\pm$.006} & .508\,{\tiny$\pm$.005}\\
+SGC & .426\,{\tiny$\pm$.006} & .302\,{\tiny$\pm$.007} & .246\,{\tiny$\pm$.009} & .208\,{\tiny$\pm$.004} & .190\,{\tiny$\pm$.007}\\
+GAT & .460\,{\tiny$\pm$.013} & .364\,{\tiny$\pm$.021} & .169\,{\tiny$\pm$.005} & .129\,{\tiny$\pm$.019} & .129\,{\tiny$\pm$.019}\\
+GAT + residual & .767\,{\tiny$\pm$.004} & \textbf{.800}\,{\tiny$\pm$.005} & \textbf{.803}\,{\tiny$\pm$.010} & .753\,{\tiny$\pm$.024} & .633\,{\tiny$\pm$.062}\\
+GRAND (linear) & .670\,{\tiny$\pm$.011} & .623\,{\tiny$\pm$.008} & .577\,{\tiny$\pm$.007} & .553\,{\tiny$\pm$.006} & .538\,{\tiny$\pm$.004}\\
+Gaussian, constant $T$ & .643\,{\tiny$\pm$.004} & .643\,{\tiny$\pm$.003} & .642\,{\tiny$\pm$.002} & .641\,{\tiny$\pm$.003} & .643\,{\tiny$\pm$.002}\\
+Gaussian, cooled & .642\,{\tiny$\pm$.002} & .642\,{\tiny$\pm$.001} & .642\,{\tiny$\pm$.001} & .642\,{\tiny$\pm$.003} & \textbf{.643}\,{\tiny$\pm$.002}\\
+\midrule
+\multicolumn{6}{l}{\emph{Amazon-ratings}}\\
+MLP ($K=0$) & \multicolumn{5}{c}{.386\,{\tiny$\pm$.004}}\\
+GCN & .426\,{\tiny$\pm$.007} & .368\,{\tiny$\pm$.000} & .368\,{\tiny$\pm$.000} & .368\,{\tiny$\pm$.000} & .368\,{\tiny$\pm$.000}\\
+GCN + residual & .424\,{\tiny$\pm$.005} & .430\,{\tiny$\pm$.004} & .439\,{\tiny$\pm$.005} & .443\,{\tiny$\pm$.015} & .382\,{\tiny$\pm$.028}\\
+GCN + PairNorm & \textbf{.470}\,{\tiny$\pm$.003} & \textbf{.466}\,{\tiny$\pm$.004} & \textbf{.463}\,{\tiny$\pm$.005} & \textbf{.452}\,{\tiny$\pm$.002} & .431\,{\tiny$\pm$.034}\\
+GCNII & .413\,{\tiny$\pm$.044} & .413\,{\tiny$\pm$.044} & .407\,{\tiny$\pm$.038} & .426\,{\tiny$\pm$.002} & .420\,{\tiny$\pm$.003}\\
+APPNP & .423\,{\tiny$\pm$.004} & .424\,{\tiny$\pm$.006} & .424\,{\tiny$\pm$.003} & .424\,{\tiny$\pm$.003} & .424\,{\tiny$\pm$.003}\\
+SGC & .423\,{\tiny$\pm$.003} & .424\,{\tiny$\pm$.001} & .422\,{\tiny$\pm$.003} & .425\,{\tiny$\pm$.004} & .424\,{\tiny$\pm$.003}\\
+GAT & .431\,{\tiny$\pm$.007} & .432\,{\tiny$\pm$.010} & .402\,{\tiny$\pm$.033} & .335\,{\tiny$\pm$.065} & .335\,{\tiny$\pm$.065}\\
+GAT + residual & .425\,{\tiny$\pm$.002} & .428\,{\tiny$\pm$.001} & .444\,{\tiny$\pm$.007} & .442\,{\tiny$\pm$.005} & \textbf{.434}\,{\tiny$\pm$.003}\\
+GRAND (linear) & .415\,{\tiny$\pm$.004} & .424\,{\tiny$\pm$.002} & .430\,{\tiny$\pm$.003} & .430\,{\tiny$\pm$.002} & .426\,{\tiny$\pm$.004}\\
+Gaussian, constant $T$ & .415\,{\tiny$\pm$.004} & .417\,{\tiny$\pm$.005} & .419\,{\tiny$\pm$.004} & .419\,{\tiny$\pm$.007} & .385\,{\tiny$\pm$.033}\\
+Gaussian, cooled & .415\,{\tiny$\pm$.001} & .417\,{\tiny$\pm$.003} & .419\,{\tiny$\pm$.006} & .417\,{\tiny$\pm$.011} & .395\,{\tiny$\pm$.016}\\
+\bottomrule
+\end{tabular}

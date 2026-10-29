@@ -1,0 +1,746 @@
+% Appendix of main.tex (input after \appendix).
+
+%=====================================================================
+\section{Proofs for Sections~\ref{sec:setup} and~\ref{sec:twoblock}}\label{app:twoblock}
+%=====================================================================
+
+\begin{proof}[Proof of \cref{prop:constT}]
+Each $h_i(t+1)$ is a convex combination of $\{h_j(t)\}$, so the feature diameter $R_t$ is nonincreasing and
+$\alpha_{ij}(t)\ge e^{-\|W\|^2R_0^2/T}/\Nmax=:\gamma>0$ on every edge, including self-loops. A product of stochastic matrices whose
+positive entries are bounded below by $\gamma$ on a fixed connected graph with self-loops is a consensus product, at an exponential
+rate~\citep{moreau2005}. Indeed, every product of $\diam(G)$ consecutive matrices has a column bounded below by $\gamma^{\diam(G)}$, so its
+Dobrushin coefficient is at most $1-\gamma^{\diam(G)}$.
+\end{proof}
+
+\begin{proof}[Proof of \cref{lem:reduction}]
+Let $z_A,z_B$ be the block values and $a=s_t^{-d^2}$. A node of $A$ sees $k_A$ nodes at distance $0$ and $e_A$ nodes at distance $d$, so
+$z_A'=(k_Az_A+e_Aa\,z_B)/(k_A+e_Aa)=z_A+\frac{\rho_Aa}{1+\rho_Aa}(z_B-z_A)$, and symmetrically for $B$. All nodes of a block receive the same
+update, so the features stay block-constant, and
+\[
+z_B'-z_A'=(z_B-z_A)\Big(1-\frac{\rho_Aa}{1+\rho_Aa}-\frac{\rho_Ba}{1+\rho_Ba}\Big)=(z_B-z_A)\,\frac{1-Pa^2}{(1+\rho_Aa)(1+\rho_Ba)} .\qedhere
+\]
+\end{proof}
+
+\paragraph{Properties of $F_t$.} For $a\in[0,1)$ we have $0<\psi(a)\le\frac{1-Pa^2}{1+\lambda a+Pa^2}\le\frac1{1+\lambda a}\le1$, because
+$P\le1$. The function $\psi$ is decreasing in $a$ and nonincreasing in $\rho_A$ and $\rho_B$. Since $a=s_t^{-d^2}$ decreases in $d$,
+$F_t'(d)=\psi(a)+d\,\psi'(a)\,\partial_da>0$. So $F_t$ is a continuous increasing bijection of $(0,\infty)$ with $F_t(d)\le d$. For fixed $d$
+and $t$, $F_t(d)$ is nondecreasing in $t_0$ and nonincreasing in $\rho_A,\rho_B$. Write $\Phi_k=F_{k-1}\circ\dots\circ F_0$, so that
+$d_k=\Phi_k(d_0)$, and note that the trajectory from $d_0$ at offset $t_0$ continues after $k$ steps as the trajectory from $\Phi_k(d_0)$
+at offset $t_0+k$.
+
+\paragraph{Certificate C1 (\cref{thm:two-block}(vi), second half).} Suppose $d_u\ge\delta$ for all $u<t$. Then $a_u\le s_u^{-\delta^2}\le q$,
+and
+\[
+-\log\psi(a)=\log(1+\rho_Aa)+\log(1+\rho_Ba)-\log(1-Pa^2)\le\lambda a+\frac{Pa^2}{1-Pa^2}\le\Lambda_\delta\,a .
+\]
+With $\sum_{u\ge0}(t_0+u)^{-\delta^2}\le\int_{t_0-1}^\infty x^{-\delta^2}dx=\frac{(t_0-1)^{1-\delta^2}}{\delta^2-1}$ we get
+$\log d_t\ge\log d_0-\Lambda_\delta\frac{(t_0-1)^{1-\delta^2}}{\delta^2-1}\ge\log\delta$, and induction on $t$ closes the argument.
+
+\begin{proof}[Proof of \cref{thm:two-block}]
+\emph{(i)} The sequence $d_t$ is positive and nonincreasing, so it converges. If $d_T\le1$, then $d_t\le1$ and $a_t\ge s_t^{-1}$ for all
+$t\ge T$. Hence $d_{t+1}\le d_t/(1+\lambda a_t)\le d_t\exp(-\frac{\lambda}{1+\lambda}s_t^{-1})$, and $\sum_ts_t^{-1}=\infty$ gives $d_t\to0$.
+Otherwise $d_t>1$ for all $t$ and $d_\infty\ge1$.
+
+\emph{(ii)} By (i), the merge set is $M(t_0)=\bigcup_T\{d_0:\Phi_T(d_0)\le1\}$. If $\Phi_T(d_0)=1$ then $\Phi_{T+1}(d_0)<1$, so
+$M(t_0)=\bigcup_T\Phi_T^{-1}((0,1))=\bigcup_T(0,\Phi_T^{-1}(1))$, an open interval $(0,\kappa)$. Since $F_0(1)<1$, $1\in M(t_0)$ and
+$\kappa>1$. Finiteness follows from (vi). Since $\kappa\notin M(t_0)$, the threshold gap itself persists.
+
+\emph{(iii)} $d_\infty(d_0)=\inf_T\Phi_T(d_0)$ is nondecreasing and, as an infimum of continuous functions, upper semicontinuous. A
+nondecreasing upper semicontinuous function is right-continuous. Since $\kappa$ persists, $d_\infty(\kappa)\ge1$. Suppose
+$d_\infty(\kappa)=1+2\eta$ with $\eta>0$, and let $\delta=1+\eta/2$. Because $(t_0+T-1)^{1-\delta^2}\to0$, there is $T$ such that \eqref{eq:C1}
+holds at offset $t_0+T$ for every initial value $\ge1+\eta$. Since $\Phi_T(\kappa)\ge1+2\eta$ and $\Phi_T$ is continuous, some $d_0<\kappa$
+has $\Phi_T(d_0)\ge1+\eta$. By C1 at offset $t_0+T$, the trajectory from $d_0$ stays above $\delta>1$, so $d_0$ persists. This contradicts
+$d_0\in M(t_0)=(0,\kappa)$, so $d_\infty(\kappa)=1$.
+
+\emph{(iv)} $M(t_0+k)=\Phi_k(M(t_0))=(0,\Phi_k(\kappa(t_0)))$, because $\Phi_k$ is an increasing bijection. For monotonicity, let
+$t_0\le t_0'$ (or $\rho\ge\rho'$ componentwise) and compare the trajectories $d_t,d_t'$ from the same $d_0$:
+$d'_{t+1}=F'_t(d'_t)\ge F'_t(d_t)\ge F_t(d_t)=d_{t+1}$. Hence $M(t_0')\subseteq M(t_0)$ (respectively $M(\rho')\subseteq M(\rho)$).
+
+\emph{(vi), lower bound.} Let $d_0=1+\varepsilon$ persist, for instance $\varepsilon=\kappa-1$. Then $1\le d_\infty\le d_t\le d_0$, so
+$s_t^{-1}\ge a_t\ge s_t^{-(1+\varepsilon)^2}$. Using $\log(1+y)\ge y/(1+y)$ and $a_t\le1/t_0$,
+\begin{align*}
+\log(1+\varepsilon)\ &\ge\ \log\frac{d_0}{d_\infty}=\sum_t-\log\psi(a_t)\ \ge\ \sum_t\big[\log(1+\rho_Aa_t)+\log(1+\rho_Ba_t)\big]\\
+&\ge\ \lambda_-\sum_{t\ge0}s_t^{-(1+\varepsilon)^2}\ \ge\ \lambda_-\,\frac{t_0^{-y}}{y},
+\end{align*}
+with $y=2\varepsilon+\varepsilon^2$. Since $\log(1+\varepsilon)\le\varepsilon$, we get $\varepsilon(2\varepsilon+\varepsilon^2)\ge\lambda_-t_0^{-(2\varepsilon+\varepsilon^2)}$. The left
+side increases and the right side decreases in $\varepsilon$, so $\varepsilon\ge\varepsilon_-$.
+
+Part (v) is proved below.
+\end{proof}
+
+\subsection{Proof of \cref{thm:two-block}(v): barriers}\label{app:second}
+
+Write $\tau_t=\log s_t$ and $\Delta_t=\tau_{t+1}-\tau_t=\log(1+e^{-\tau_t})\in\big[e^{-\tau_t}(1-\tfrac12e^{-\tau_t}),\,e^{-\tau_t}\big]$. Let
+$c(\tau)=c_0+(\beta\log\log\tau+k)/\log\tau$ with constants $c_0,\beta,k$ (the proof of (v) uses $\beta=k=0$, that of \cref{prop:third}
+uses $\beta=\frac14$), and for $\tau>e$ let
+\[
+N_c(\tau)=\log\tau-\tfrac12\log\log\tau+c(\tau),\qquad X_c(\tau)=N_c(\tau)/\tau,\qquad\text{so}\qquad
+e^{-2\tau X_c(\tau)}=e^{-2c(\tau)}\,\frac{\log\tau}{\tau^2}. \tag{$*$}
+\]
+
+\begin{lemma}[barrier functions]\label{lem:barrier}
+There is $\tau_1$ such that on $[\tau_1,\infty)$: $0<X_c\le1$, $X_c'<0<X_c''$, $\tau X_c^2\le1$, and
+\[
+\frac{\tau^2|X_c'(\tau)|}{\log\tau}=1-r_c(\tau),\qquad r_c(\tau)=\frac{\frac12\log\log\tau-c(\tau)+1-\frac1{2\log\tau}+\tau c'(\tau)}{\log\tau},
+\]
+where $r_c(\tau)\to0$ and $\tau c'(\tau)=O(\log\log\tau/(\log\tau)^2)$. Moreover $\tau X_c(\tau)^2\to0$ and $r_c(\tau+\Delta)=r_c(\tau)+O(e^{-\tau})$ for $0\le\Delta\le e^{-\tau}$.
+\end{lemma}
+\begin{proof}
+With $u=\log\tau$, $\tau c'=(\beta-\beta\log u-k)/u^2$. Then $N_c'=(1-\frac1{2\log\tau})/\tau+c'$, so
+$\tau^2X_c'=\tau N_c'-N_c=-(N_c-1+\frac1{2\log\tau}-\tau c')$, which gives the formula for $r_c$ and $X_c'<0$ for large $\tau$. Further
+$\tau^3X_c''=2N_c-2\tau N_c'+\tau^2N_c''=2\log\tau+O(\log\log\tau)>0$, $\tau X_c^2=N_c^2/\tau\to0$, and $r_c'(\tau)=O(1/\tau)$.
+\end{proof}
+
+For $0\le a\le e^{-\tau}$ and $\tau\ge1$ we use two bounds on $\psi$. Since $\psi(a)\ge(1-Pa^2)(1-\lambda a-Pa^2)\ge1-\lambda a-2Pa^2$ and $P\le1$,
+\begin{equation}\label{eq:P1}
+1-\psi(a)\le a\,(\lambda+2e^{-\tau}).
+\end{equation}
+Since $1-\psi(a)=\frac{\lambda a+2Pa^2}{1+\lambda a+Pa^2}\ge\frac{\lambda a}{1+(\lambda+1)a}$,
+\begin{equation}\label{eq:P2}
+1-\psi(a)\ge\lambda a\,\big(1-(\lambda+1)e^{-\tau}\big).
+\end{equation}
+
+\begin{proof}[Proof of \cref{thm:two-block}(v)]
+Let $L=\log t_0$ and fix $\eta>0$.
+
+\emph{Upper bound.} Let $X=X_c$ with $c\equiv\frac12\log\lambda+\eta$. We claim that there is $\tau_2\ge\tau_1$ with
+\begin{equation}\label{eq:barrier-up}
+F_t\big(1+X(\tau_t)\big)\ \ge\ 1+X(\tau_{t+1})\qquad\text{whenever }\tau_t\ge\tau_2 .
+\end{equation}
+Write $\tau=\tau_t$, $\Delta=\Delta_t$ and $d=1+X(\tau)$. Then $a=s_t^{-d^2}=e^{-\tau}e^{-2\tau X}e^{-\tau X^2}\le e^{-\tau}\lambda^{-1}e^{-2\eta}\log\tau/\tau^2$ by
+($*$), and \eqref{eq:P1} gives
+\[
+d-F_t(d)=d\,(1-\psi(a))\ \le\ e^{-\tau}\,(1+X)\Big(1+\frac{2e^{-\tau}}{\lambda}\Big)\,e^{-2\eta}\,\frac{\log\tau}{\tau^2}.
+\]
+By convexity, $X(\tau)-X(\tau+\Delta)\ge\Delta\,|X'(\tau+\Delta)|\ge e^{-\tau}(1-\frac12e^{-\tau})|X'(\tau+\Delta)|$, and by \cref{lem:barrier}
+$|X'(\tau+\Delta)|=(1+o(1))\log\tau/\tau^2$ as $\tau\to\infty$, uniformly in $\Delta\in[0,e^{-\tau}]$. Since $e^{-2\eta}<1$ and
+$(1+X)(1+2e^{-\tau}/\lambda)\to1$, we get $X(\tau)-X(\tau+\Delta)\ge d-F_t(d)$ for large $\tau$, which is \eqref{eq:barrier-up}.
+Now let $L\ge\tau_2$ and $d_0\ge1+X(L)$. Since $F_t$ is increasing, induction with \eqref{eq:barrier-up} gives
+$d_{t+1}=F_t(d_t)\ge F_t(1+X(\tau_t))\ge1+X(\tau_{t+1})>1$ for all $t$. By (i) the gap persists. Hence
+$\kappa(t_0)\le1+X_{\frac12\log\lambda+\eta}(L)$ for all large $t_0$.
+
+\emph{Lower bound.} Let $Y=X_c$ with $c\equiv\frac12\log\lambda-\eta$. We claim that there is $\tau_3\ge\tau_1$ with
+\begin{equation}\label{eq:barrier-down}
+F_t\big(1+Y(\tau_t)\big)\ \le\ 1+Y(\tau_{t+1})\qquad\text{whenever }\tau_t\ge\tau_3 .
+\end{equation}
+With $d=1+Y(\tau)$ we have $a=e^{-\tau}\lambda^{-1}e^{2\eta}e^{-\tau Y^2}\log\tau/\tau^2\le e^{-\tau}$ for large $\tau$, and \eqref{eq:P2} gives
+\[
+d-F_t(d)\ \ge\ e^{-\tau}\,(1+Y)\,e^{2\eta}\,e^{-\tau Y^2}\big(1-(\lambda+1)e^{-\tau}\big)\frac{\log\tau}{\tau^2},
+\]
+while convexity gives $Y(\tau)-Y(\tau+\Delta)\le\Delta|Y'(\tau)|\le e^{-\tau}(1-r_c(\tau))\log\tau/\tau^2$. Since $e^{2\eta}>1$ and $\tau Y^2\to0$, this
+proves \eqref{eq:barrier-down} for large $\tau$. Now let $L\ge\tau_3$ and $d_0=1+Y(L)$. By induction, $d_t\le1+Y(\tau_t)$ for all $t$. Suppose
+the gap persists. By (i), $d_t>1$ for all $t$, so $s_t^{-(1+Y(\tau_t))^2}\le a_t\le e^{-\tau_t}$. By \eqref{eq:P2} and ($*$),
+\[
+d_t-d_{t+1}=d_t(1-\psi(a_t))\ \ge\ \lambda a_t\big(1-(\lambda+1)e^{-\tau_t}\big)\ \ge\ e^{2\eta}\big(1-\epsilon(\tau_t)\big)\,g(s_t),
+\qquad g(s)=\frac{\log\log s}{s\,(\log s)^2},
+\]
+with $\epsilon(\tau)=1-e^{-\tau Y(\tau)^2}(1-(\lambda+1)e^{-\tau})\to0$. Choose $\tau_4\ge\tau_3$ such that $1-\epsilon(\tau)\ge e^{-\eta}$ and $g$ is
+decreasing for $\log s\ge\tau_4$, and let $L\ge\tau_4$. Summing over $t$ and substituting $\tau=\log s$,
+\begin{align*}
+d_0-1&\ \ge\ \sum_{t\ge0}(d_t-d_{t+1})\ \ge\ e^{\eta}\sum_{t\ge0}g(t_0+t)\ \ge\ e^{\eta}\int_{t_0}^\infty g(s)\,ds\\
+&\ =\ e^{\eta}\int_L^\infty\frac{\log\tau}{\tau^2}\,d\tau\ =\ e^{\eta}\,\frac{\log L+1}{L}.
+\end{align*}
+But $d_0-1=Y(L)=(\log L-\frac12\log\log L+\frac12\log\lambda-\eta)/L$, which is smaller than $e^\eta(\log L+1)/L$ for large $L$. This is a
+contradiction, so $d_0=1+Y(L)$ merges, and $\kappa(t_0)>1+X_{\frac12\log\lambda-\eta}(L)$ for all large $t_0$.
+
+Since $\eta>0$ was arbitrary, $(\kappa-1)L-(\log L-\frac12\log\log L+\frac12\log\lambda)\to0$. In physical units
+$d_{\rm crit}^2=c\kappa^2=c+2c(\kappa-1)+c(\kappa-1)^2$, where $c/L=T_0$, $\log L=\log(c/T_0)$ and $c(\kappa-1)^2=T_0\,O((\log L)^2/L)=o(T_0)$.
+\end{proof}
+
+\begin{proof}[Proof of \cref{cor:topology}]
+Subtract the expansions of (v) for $(\rho_A,\rho_B)$ and $(\rho_A',\rho_B')$; in physical units multiply by $2c\kappa$, using
+$c/\log t_0=T_0$ and $\kappa\to1$.
+\end{proof}
+
+\begin{remark}[where the third term comes from]\label{rem:third-heuristic}
+In the continuum limit $dx/d\tau=-\lambda e^{-2\tau x}$ (dropping terms of relative order $x$ and $e^{-\tau}$), write
+$x=(N_{\frac12\log\lambda}(\tau)+y/2)/\tau$. Then
+\[
+\frac{\tau y'}{2}=\log\tau\,(1-e^{-y})-\tfrac12\log\log\tau+\tfrac12\log\lambda-1+\frac y2+\frac1{2\log\tau}.
+\]
+The linearisation $\tau\,\delta y'\approx2\log\tau\,\delta y$ shows that the critical solution is repelling, so it stays near the zero of the right
+side, $y^*=(\log\log\tau-\log\lambda+2)/(2\log\tau)+O\big((\log\log\tau)^2/(\log\tau)^2\big)$. This is the third term of \cref{prop:third};
+the barrier proof below makes it rigorous for the discrete map.
+\end{remark}
+
+\begin{proof}[Proof of \cref{prop:third}]
+Fix $\eta>0$, let $\delta_\pm(\tau)=(\log\log\tau-\log\lambda+2\pm\eta)/(4\log\tau)$ and $c_\pm=\frac12\log\lambda+\delta_\pm$, and let
+$X=X_{c_+}$ and $Y=X_{c_-}$. Since $\delta_\pm=O(\log\log\tau/\log\tau)$, \cref{lem:barrier} gives
+\begin{align*}
+1-r_{c_\pm}(\tau)&=1-\frac{\frac12\log\log\tau-\frac12\log\lambda+1}{\log\tau}+O\Big(\frac{\log\log\tau}{(\log\tau)^2}\Big),\\
+e^{-2\delta_\pm(\tau)}&=1-\frac{\frac12\log\log\tau-\frac12\log\lambda+1\pm\frac\eta2}{\log\tau}+O\Big(\frac{(\log\log\tau)^2}{(\log\tau)^2}\Big),
+\end{align*}
+so that
+\begin{equation}\label{eq:third-key}
+\big(1-r_{c_\pm}(\tau)\big)-e^{-2\delta_\pm(\tau)}=\pm\frac{\eta}{2\log\tau}+O\Big(\frac{(\log\log\tau)^2}{(\log\tau)^2}\Big).
+\end{equation}
+We repeat the proof of (v), with $e^{\mp2\eta}$ replaced by $e^{-2\delta_\pm(\tau)}$ in the bounds on $a$.
+
+\emph{Upper bound.} As there, \eqref{eq:barrier-up} holds if
+\[
+\big(1-\tfrac12e^{-\tau}\big)\big(1-r_{c_+}(\tau+\Delta)\big)\frac{\log(\tau+\Delta)}{(\tau+\Delta)^2}\ \ge\
+(1+X)\Big(1+\frac{2e^{-\tau}}{\lambda}\Big)e^{-2\delta_+(\tau)}\frac{\log\tau}{\tau^2}.
+\]
+By \cref{lem:barrier}, every factor other than $1-r_{c_+}(\tau)$ and $e^{-2\delta_+(\tau)}$ is $1+O(\log\tau/\tau)$, so this follows from
+\eqref{eq:third-key} for large $\tau$. Hence $\kappa(t_0)\le1+X(L)$ for large $t_0$.
+
+\emph{Lower bound.} As there, \eqref{eq:barrier-down} holds if
+$(1+Y)\,e^{-2\delta_-(\tau)}e^{-\tau Y^2}(1-(\lambda+1)e^{-\tau})\ge1-r_{c_-}(\tau)$, which follows from \eqref{eq:third-key} in the same way.
+Let $d_0=1+Y(L)$, so that $d_t\le1+Y(\tau_t)$ for all $t$ by induction, and suppose that the gap persists. Then
+$d_t-d_{t+1}\ge e^{-2\delta_-(\tau_t)}(1-\epsilon(\tau_t))\,g(s_t)$ with $\epsilon(\tau)\le\tau Y(\tau)^2+(\lambda+1)e^{-\tau}=O((\log\tau)^2/\tau)$.
+For large $\tau$, $\delta_-$ is decreasing, so with $\bar\epsilon(L)=\sup_{\tau\ge L}\epsilon(\tau)$,
+\begin{align*}
+L\,(d_0-1)&\ \ge\ e^{-2\delta_-(L)}\big(1-\bar\epsilon(L)\big)(\log L+1)\ \ge\ \log L+1-2\delta_-(L)\log L-O\Big(\frac{\log\log L}{\log L}\Big)\\
+&\ =\ \log L-\tfrac12\log\log L+\tfrac12\log\lambda+\frac\eta2-o(1),
+\end{align*}
+using $e^{-x}\ge1-x$. But $L(d_0-1)=LY(L)=\log L-\frac12\log\log L+\frac12\log\lambda+\delta_-(L)$ and $\delta_-(L)\to0$, a contradiction for
+large $L$. Hence $\kappa(t_0)>1+Y(L)$.
+
+Since $\eta>0$ was arbitrary, $(\kappa-1)L=\log L-\frac12\log\log L+\frac12\log\lambda+\frac{\log\log L-\log\lambda+2+o(1)}{4\log L}$. For the
+topology shift, subtract the expansions for $\lambda$ and $\lambda'$: the third terms differ by $-\log(\lambda/\lambda')/(4\log L)$.
+\end{proof}
+
+%=====================================================================
+\section{Proofs for chains}\label{app:chains}
+%=====================================================================
+
+\paragraph{Derivation of \eqref{eq:chain}.} By symmetry, layer-constant features stay layer-constant. A node of layer $l$ sees $m$ nodes
+of layers $l-1$, $l$, $l+1$ with weights $w_{l-1},1,w_l$, so $x_l'=(w_{l-1}x_{l-1}+x_l+w_lx_{l+1})/D_l$. Then
+$x_l'-x_l=(w_lg_l-w_{l-1}g_{l-1})/D_l$, and $g_l'=x_{l+1}'-x_l'$ equals
+$g_l\big(1-\frac{w_l}{D_l}-\frac{w_l}{D_{l+1}}\big)+\frac{w_{l+1}g_{l+1}}{D_{l+1}}+\frac{w_{l-1}g_{l-1}}{D_l}$. With $D_l=A+w_l$ and
+$D_{l+1}=B+w_l$, the bracket equals $(AB-w_l^2)/(D_lD_{l+1})$.
+
+\begin{proof}[Proof of \cref{lem:comparison}]
+All terms of \eqref{eq:chain} are nonnegative, since $AB\ge1\ge w_l^2$. It remains to show $(AB-w^2)(1+w)\ge(1-w)(A+w)(B+w)$ for $A,B\ge1$ and
+$w\in[0,1]$; the difference equals $w\,[(A-1)B+A(B-1)+w(A+B-2)]\ge0$. Dropping the push terms gives
+$g_l'\ge g_l\frac{1-w_l}{1+w_l}=F_t(g_l)$.
+\end{proof}
+
+\begin{proof}[Proof of \cref{thm:chain}]
+(a) By \cref{lem:comparison} and the monotonicity of $F_t$, induction gives $g_l(t_1+k)\ge d_k$, where $d$ is the isolated trajectory at offset
+$t_0+t_1$ from $\kappa(t_0+t_1)$. By \cref{thm:two-block}(ii),(iii), $d_k>1$ for all $k$.
+(b) is (a) with $t_1=0$.
+(c) One-sidedness is (a). If $g_l(t_1)\ge\kappa(t_0+t_1)$, then by \cref{lem:comparison} and \cref{thm:two-block}(iv),
+$g_l(t_1+1)\ge F_{t_1}(g_l(t_1))\ge F_{t_1}(\kappa(t_0+t_1))=\kappa(t_0+t_1+1)$, where $F_{t_1}$ is taken at offset $t_0$. So the declared set
+is nondecreasing. A merging gap has $g_l(t_1)\to0<1<\kappa(t_0+t_1)$ and is always declared merging. A persisting gap with $g_l(t)\to g_\infty>1$
+is eventually declared persisting, because $\kappa(t_0+t_1)\to1$ by \cref{thm:two-block}(v).
+\end{proof}
+
+\subsection{Three layers}\label{app:three}
+
+Let $u=x_2-x_1$, $v=x_3-x_2$, $w_1=s_t^{-u^2}$, $w_2=s_t^{-v^2}$, $D_1=1+w_1$, $D_2=1+w_1+w_2$, $D_3=1+w_2$. Write $D:=u+v$,
+$h:=u+v/2$ and $\tilde h:=v+u/2$. By \cref{prop:dichotomy}, the limits $u_\infty,v_\infty$ exist and lie in $\{0\}\cup[1,\infty)$. Define
+\begin{align*}
+U_+(v_0;t_0)&:=\inf\{u:\ \text{gap 1 persists from }(u',v_0)\ \forall u'\ge u\},\\
+U_-(v_0;t_0)&:=\sup\{u:\ \text{gap 1 merges from }(u',v_0)\ \forall u'\le u\},
+\end{align*}
+so that $U_-\le U_+$ and $u^*\in[U_-,U_+]$.
+
+\begin{lemma}[identities]\label{lem:id}
+With $F_t$ the isolated map,
+\begin{align}
+u'&=F_t(u)+\frac{w_2}{D_2}\Big(v+\frac{w_1u}{D_1}\Big), &
+v'&=F_t(v)+\frac{w_1}{D_2}\Big(u+\frac{w_2v}{D_3}\Big),\label{eq:I1}\\
+h'&=h-w_1\Big[u\Big(\frac1{2D_2}+\frac1{D_1}\Big)+\frac{w_2v}{2D_2D_3}\Big], &
+\tilde h'&=\tilde h-w_2\Big[v\Big(\frac1{2D_2}+\frac1{D_3}\Big)+\frac{w_1u}{2D_1D_2}\Big],\label{eq:I2}\\
+D'&=D-\frac{w_1u}{D_1}-\frac{w_2v}{D_3}. \label{eq:I3}
+\end{align}
+Consequently $h,\tilde h,D$ are nonincreasing, $u\le h$, $v\le\tilde h$, $u,v\le D\le D_0$, and
+\begin{align}
+&(1-2w_1)u\le u'\le(1-w_1)u+w_2(u+v),\qquad (1-2w_2)v\le v'\le(1-w_2)v+w_1(u+v),\label{eq:bounds}\\
+&0\le h-h'\le\tfrac32\,w_1(u+v). \label{eq:hloss}
+\end{align}
+\end{lemma}
+\begin{proof}
+Put $x_1=0$, $x_2=u$, $x_3=u+v$. Then $x_1'=w_1u/D_1$ and $x_2'=(u(1+w_2)+w_2v)/D_2$, so
+$u'=u\frac{1+w_2-w_1^2}{D_1D_2}+\frac{w_2v}{D_2}$. Since $\frac{1+w_2-w_1^2}{D_1D_2}-\frac{1-w_1}{1+w_1}=\frac{w_1w_2}{D_1D_2}$, this is the first
+identity in \eqref{eq:I1}; the second follows by the mirror symmetry $x\mapsto-x$, $1\leftrightarrow3$. With $\Delta x_1=w_1u/D_1$,
+$\Delta x_2=(w_2v-w_1u)/D_2$ and $\Delta x_3=-w_2v/D_3$ we get $h'-h=\frac{\Delta x_2+\Delta x_3}2-\Delta x_1$, and
+$\frac1{D_2}-\frac1{D_3}=-\frac{w_1}{D_2D_3}$ gives \eqref{eq:I2}; the mirror gives the $\tilde h$ identity. \eqref{eq:I3} is
+$\Delta x_3-\Delta x_1$. The bounds use $1-2a\le\frac{1-a}{1+a}\le1-a$, $D_i\ge1$, $w_i\le1$, and, for \eqref{eq:hloss},
+$\frac1{2D_2}\le\frac12$, $\frac1{D_1}\le1$ and $\frac{w_2}{D_2D_3}\le\frac14$.
+\end{proof}
+(The identities were checked against the implementation on $2\cdot10^5$ random points; the maximal discrepancy is $2.7\cdot10^{-15}$.)
+
+\begin{proof}[Proof of \cref{thm:rescue}(a)]
+If $h(t_1)<1$ for some $t_1$, then $u_\infty\le h_\infty\le h(t_1)<1$, so $u_\infty=0$ by the dichotomy; at $t_1=0$ this is the first claim.
+Let $u_0+v_0<2$. If gap~1 persists, then $v_\infty=0$: otherwise $v_\infty\ge1$ and $u_\infty\ge1$ give $D_\infty\ge2>D_0$, contradicting
+\eqref{eq:I3}. Hence $u_\infty=h_\infty$ and $h(t)\ge h_\infty\ge1$ for all $t$. Conversely, if $h(t)\ge1$ for all $t$ but $u_\infty=0$, then
+$h_\infty=v_\infty/2\le D_0/2<1$, a contradiction. On the symmetric line the dynamics commute with the mirror, so $u(t)=v(t)$; if gap~1
+persisted, the previous argument would force $v_\infty=0\ne u_\infty$.
+\end{proof}
+
+\begin{proof}[Proof of \cref{thm:rescue}(b)]
+Let $L=\log t_0$, $w_*=t_0^{-v_0^2}$, $p_0=\frac{w_*v_0}{1+w_*}$, $d_-=1-p_0$, and
+\[
+p:=\frac{w_*v_0}{1+t_0^{-d_-^2}+w_*},\qquad m:=\max\{d_-^2,\tfrac3{2L}\},\qquad M:=1+(4mL-2)_+\,t_0^{-m},\qquad R:=p/M .
+\]
+First, $p_0\le\sup_vve^{-v^2L}=(2eL)^{-1/2}<1$ for $L\ge\log2$, so $d_->0$, and $R\le p\le p_0<\kappa(t_0)-d_-$. For $u_0\ge\kappa(t_0)$ use
+\cref{thm:chain}(a). For $u_0\in[\kappa-R,\kappa)$ we have $u_0>d_-$, and by \eqref{eq:I1} at $t=0$,
+$u(1)\ge F_0(u_0)+\frac{w_*v_0}{1+t_0^{-u_0^2}+w_*}\ge F_0(u_0)+p$. By the mean value theorem,
+$F_0(\kappa)-F_0(u_0)\le(\kappa-u_0)\sup_{d\ge d_-}F_0'(d)$. Moreover $F_0'(d)-1=\frac{a(4d^2L-2-2a)}{(1+a)^2}\le G(d^2)$ with
+$G(m'):=(4m'L-2)_+e^{-m'L}$. $G$ vanishes on $[0,\frac1{2L}]$, increases on $[\frac1{2L},\frac3{2L}]$ and decreases afterwards, so
+$\sup_{m'\ge d_-^2}G(m')=G(m)$. Hence $F_0(\kappa)-F_0(u_0)\le RM=p$ and $u(1)\ge F_0(\kappa(t_0))=\kappa(t_0+1)$ by \cref{thm:two-block}(iv).
+Persistence follows from \cref{thm:chain}(a).
+\end{proof}
+
+\begin{remark}[size of the one-step rescue]
+As $t_0\to\infty$ with $v_0=x/\sqrt L$: $\sup_{v_0}R=(c_1+o(1))/\sqrt{\log t_0}$ with $c_1=\max_xxe^{-x^2}/(1+e^{-x^2})=0.2779$. At
+$t_0=5,11,100,10^3,10^6$ the largest one-step rescue $\max_{v_0}R/\kappa$ is $5.5\%,5.5\%,6.8\%,7.5\%,6.2\%$. The macroscopic rescue
+($25$--$33\%$) needs $\gtrsim t_0^{v_0^2}$ steps, which is the content of part~(c).
+\end{remark}
+
+\paragraph{Scaling limit.} The three window lemmas below hold for $t_0\ge2$ and an integer horizon $T\le t_0$, so that $t_0\le s_t\le2t_0$ for
+$t\le T$.
+
+\begin{lemma}[persistence window]\label{lem:winP}
+Let $0<b<a$, $\epsilon:=Tt_0^{-a^2}$ and $E:=\exp(-T(2t_0)^{-b^2})$. If $u_0\ge a+2D_0\epsilon$ and $v_0+D_0\epsilon\le b$, then
+$u(T)\ge u_0+\frac{v_0}2-2D_0\epsilon-\frac{v_0}2E$. Consequently gap~1 persists if $u_0+\frac{v_0}2-2D_0\epsilon-\frac{v_0}2E\ge\kappa(t_0)$.
+\end{lemma}
+\begin{proof}
+By induction on $t\le T$: $u(t)\ge u_0-2D_0t\,t_0^{-a^2}\ge a$ and $v(t)\le v_0+D_0t\,t_0^{-a^2}\le b$. Indeed, if $u(t)\ge a$ then
+$w_1(t)\le t_0^{-a^2}$, and \eqref{eq:bounds} with $u,v\le D_0$ gives $u(t+1)\ge u(t)-2D_0t_0^{-a^2}$ and $v(t+1)\le v(t)+D_0t_0^{-a^2}$. Then
+$w_2(t)\ge(2t_0)^{-b^2}$, so $v(t+1)\le(1-(2t_0)^{-b^2})v(t)+D_0t_0^{-a^2}$ and $v(T)\le v_0E+D_0\epsilon$. By \eqref{eq:hloss},
+$h(T)\ge h_0-\frac32D_0\epsilon$. Hence $u(T)=h(T)-v(T)/2$ satisfies the bound. Finally $\kappa(t_0+T)\le\kappa(t_0)$ and
+\cref{thm:chain}(a) applies.
+\end{proof}
+
+\begin{lemma}[race window]\label{lem:winR}
+Let $0<\bar u<v_{\rm lo}$, $\epsilon':=Tt_0^{-v_{\rm lo}^2}$ and $E':=\exp(-T(2t_0)^{-\bar u^2})$. If $u_0+D_0\epsilon'\le\bar u$ and
+$v_0(1-2\epsilon')\ge v_{\rm lo}$, then $u(T)\le u_0E'+D_0\epsilon'$. Hence gap~1 merges if $u_0E'+D_0\epsilon'+\frac{v_0}2+\frac{u_0}4<1$.
+\end{lemma}
+\begin{proof}
+By induction on $t\le T$: $v(t)\ge v_0(1-2t_0^{-v_{\rm lo}^2})^t\ge v_0(1-2\epsilon')\ge v_{\rm lo}$, by the lower bound in \eqref{eq:bounds} with
+$w_2\le t_0^{-v_{\rm lo}^2}$. Also $u(t)\le u_0+D_0t\,t_0^{-v_{\rm lo}^2}\le\bar u$, by the upper bound in \eqref{eq:bounds}. Then
+$w_1(t)\ge(2t_0)^{-\bar u^2}$, so $u(t+1)\le(1-(2t_0)^{-\bar u^2})u(t)+D_0t_0^{-v_{\rm lo}^2}$, which gives the bound on $u(T)$. Moreover
+$v(T)\le\tilde h(T)\le\tilde h_0=v_0+u_0/2$. Hence $h(T)<1$, and part~(a) applies.
+\end{proof}
+
+\begin{lemma}[persistent neighbour]\label{lem:winV}
+Let $v_{\rm lo}>1$ and $P_\infty:=(t_0-1)^{1-v_{\rm lo}^2}/(v_{\rm lo}^2-1)$. If $v_0(1-2P_\infty)\ge v_{\rm lo}$ and
+$u_0+(v_{\rm lo}+1)P_\infty<1$, then gap~1 merges and gap~2 persists.
+\end{lemma}
+\begin{proof}
+By induction, $v(t)\ge v_0\prod_{u'<t}(1-2s_{u'}^{-v_{\rm lo}^2})\ge v_0(1-2P_\infty)\ge v_{\rm lo}$. The push in \eqref{eq:I1} is at most
+$w_2v+w_2u\le(v_{\rm lo}+1)s_t^{-v_{\rm lo}^2}$, because $x\mapsto xs^{-x^2}$ decreases for $x\ge1/\sqrt{2\log s}$ and $u<1$, and
+$F_t(u)\le u$. Hence $u_\infty\le u_0+(v_{\rm lo}+1)P_\infty<1$, so $u_\infty=0$.
+\end{proof}
+
+\begin{theorem}[explicit form of \cref{thm:rescue}(c)]\label{thm:B2}
+Let $x\in(0,1)\cup(1,\infty)$, $y>0$, $y\ne\varphi(x)$. There is an explicit $T^*(x,y)$ such that for all $t_0\ge T^*$ the chain started from
+$(u_0,v_0)=(y\kappa(t_0),x\kappa(t_0))$ has gap~1 persisting if $y>\varphi(x)$ and merging if $y<\varphi(x)$. With $\bar\kappa$ any certified
+upper bound for $\kappa(T^*)$ (for instance from C1) and $T=\lceil t_0^\beta\rceil$, the following conditions at $t_0=T^*$ suffice; all
+of them get weaker as $t_0$ grows.
+\begin{enumerate}[label=(\roman*),leftmargin=2em,itemsep=1pt]
+\item ($x<1$, $\varphi(x)<y<1$; persistence) $x\bar\kappa<b<\sqrt\beta<a<y$, $\beta<1$, $t_0^\beta+1\le t_0$, and with $e=2t_0^{\beta-a^2}$:
+$y-2(x+1)\bar\kappa e\ge a$, $x\bar\kappa+(x+1)\bar\kappa e\le b$, and $y+\frac x2-1\ge2(x+1)e+\frac x2\exp(-2^{-b^2}t_0^{\beta-b^2})$.
+\item ($y<1-x/2$, $x<2$; merge) $\bar\kappa\,(y+x/2)<1$.
+\item ($2/3<x<1$, $1-x/2\le y<x$; merge) $y\bar\kappa<\bar u<\sqrt\beta<v_{\rm lo}<x$, $t_0^\beta+1\le t_0$, $e'=2t_0^{\beta-v_{\rm lo}^2}$,
+$y\bar\kappa+(x+y)\bar\kappa e'\le\bar u$, $x(1-2e')\ge v_{\rm lo}$, and
+$y\bar\kappa e^{-2^{-\bar u^2}t_0^{\beta-\bar u^2}}+(x+y)\bar\kappa e'+\bar\kappa(\frac x2+\frac y4)<1$.
+\item ($x>1$, $y<1$; merge) $1<v_{\rm lo}<x$ with $x(1-2P_\infty)\ge v_{\rm lo}$ and $y\bar\kappa+(v_{\rm lo}+1)P_\infty<1$.
+\item ($y\ge1$) persistence for every $t_0$, by \cref{thm:chain}(a).
+\end{enumerate}
+Each condition holds for all large $t_0$, because $\bar\kappa$ can be taken $\to1$ by \cref{thm:two-block}(v), $t_0^{\beta-a^2},t_0^{\beta-v_{\rm lo}^2},
+P_\infty\to0$ and $t_0^{\beta-b^2},t_0^{\beta-\bar u^2}\to\infty$. The regions (i)--(v) cover all $(x,y)$ with $x\ne1$ and $y\ne\varphi(x)$.
+\end{theorem}
+\begin{proof}
+(i) Apply \cref{lem:winP} with these $a,b,T$, using $\kappa\ge1$ (so $u_0\ge y$), $\kappa\le\bar\kappa$, $D_0=(x+y)\kappa\le(x+1)\bar\kappa$ and
+$t_0^\beta\le T\le2t_0^\beta$. The final inequality of \cref{lem:winP}, divided by $\kappa$, reads $y+x/2-1\ge2(x+y)\epsilon+\frac x2E$. Such $a,b$
+exist because $y>x$, and the left side is positive because $y>1-x/2$.
+(ii) $u_0+v_0/2=\kappa(y+x/2)<1$; use part~(a).
+(iii) \cref{lem:winR} with $D_0\le(x+y)\bar\kappa$, $v_0\ge x$, $u_0\le y\bar\kappa$ and $v_0/2+u_0/4\le\bar\kappa(x/2+y/4)$. As $t_0\to\infty$ the left
+side of the last condition tends to $x/2+y/4<3/4$.
+(iv) \cref{lem:winV} with $v_0\ge x$ and $u_0\le y\bar\kappa$.
+Coverage: for $x\le2/3$, $\varphi=1-x/2$ and $y<\varphi$ is (ii); for $2/3<x<1$, $\varphi=x$ and $y<\varphi$ is (ii)$\cup$(iii); for $x>1$, $y<1$ is
+(iv); and $y>\varphi$ is (i) or (v).
+\end{proof}
+
+\begin{proof}[Proof of \cref{thm:rescue}(c)]
+Pointwise: within each region the conditions of \cref{thm:B2} are monotone in $y$ (larger $y$ only helps (i), smaller $y$ only helps
+(ii)--(iv); in (i) use $x+1\ge x+y'$). So for each $\epsilon>0$, eventually gap~1 persists for all $y'\ge\varphi(x)+\epsilon$ and merges for all
+$y'\le\varphi(x)-\epsilon$. For the infimum, $\limsup\inf_{v_0}U_+/\kappa\le\lim U_+(\frac23\kappa)/\kappa=\frac23$. For the lower bound, fix
+$\epsilon\in(0,\frac16)$ and $y\le\frac23-\epsilon$; we show merging uniformly in $x>0$ for large $t_0$. If $x\le\frac23+\epsilon$, then $y+x/2\le1-\epsilon/2$
+and (ii) holds once $\bar\kappa<1/(1-\epsilon/2)$. If $\frac23+\epsilon\le x\le\frac43$, apply \cref{lem:winR} with $\bar u=\frac23-\frac\epsilon2$,
+$v_{\rm lo}=\frac23+\frac\epsilon2$, $\beta=(\bar u^2+v_{\rm lo}^2)/2$ and $D_0\le2\kappa$; the last condition becomes
+$\bar\kappa(\frac x2+\frac y4)\le\frac56\bar\kappa<1$ up to vanishing terms, uniformly in $x$. If $x\ge\frac43$, apply \cref{lem:winV} with
+$v_{\rm lo}=\frac76$, uniformly in $x$. Hence $U_-\ge(\frac23-\epsilon)\kappa$ for all $v_0$ once $t_0$ is large.
+\end{proof}
+
+\begin{remark}[finite $t_0$ and the size of $T^*$]
+A sharper finite-$t_0$ check (merge iff $h<1$; persist iff $u$ exceeds the critical trajectory from the upper end of the $\kappa$ enclosure) at
+$t_0=10^5$ gives $u^*/\kappa=0.937,0.837,0.737,0.692,0.684,0.703,0.800,0.900$ for $x=0.1,0.3,0.5,0.6,\frac23,0.7,0.8,0.9$, against
+$\varphi=0.950,0.850,0.750,0.700,0.667,0.700,0.800,0.900$. On the branch $\varphi=x$ the agreement is exact already at finite $t_0$, as the
+symmetric line predicts. On the branch $1-x/2$ the finite-$t_0$ boundary lies slightly below $\varphi$. The constants in \cref{thm:B2} are
+explicit but crude: uniform persistence for $x\in[0.3,0.5]$, $y\ge0.9$ holds from $t_0\ge2.0\cdot10^8$, but near the corner $x=y=2/3$ the bound
+is $T^*\approx5\cdot10^{110}$, because the proof separates the time scales $t_0^{v_0^2}\ll t_0^{u_0^2}$. For moderate $t_0$ the macroscopic
+rescue is established by \cref{thm:cap}.
+\end{remark}
+
+%=====================================================================
+\section{Proofs for general graphs}\label{app:graphs}
+%=====================================================================
+
+\begin{lemma}[\citealp{touri2014}, Thm.~1, deterministic case]\label{lem:TN}
+Let $A(t)$ be row-stochastic $n\times n$ matrices, and suppose there are $\alpha,\gamma>0$ such that for all $t$: (i) $A_{ii}(t)\ge\gamma$ for
+all $i$; (ii) $\sum_{i\in S,j\notin S}A_{ij}(t)\ge\alpha\sum_{i\notin S,j\in S}A_{ij}(t)$ for every nonempty proper $S\subset[n]$. Then
+$x(t)=A(t-1)\cdots A(0)x(0)$ converges for every $x(0)$, and $\lim_tx_i(t)=\lim_tx_j(t)$ whenever $i,j$ lie in the same connected component of the
+infinite flow graph $\{\{i,j\}:\sum_t(A_{ij}(t)+A_{ji}(t))=\infty\}$.
+\end{lemma}
+(Touri and Nedi\'c state the theorem for independent random chains; a deterministic chain is a special case. Their weak aperiodicity follows
+from (i), since $\sum_lA_{li}A_{lj}\ge\gamma(A_{ij}+A_{ji})$. The discrete-time cut-balanced theorem of \citet{hendrickx2013} additionally
+needs a lower bound on the positive entries, which fails here because attention weights decay to $0$.)
+
+\begin{proof}[Proof of \cref{prop:dichotomy}]
+For a fixed initial condition the matrices $A_{ij}(t)=\alpha_{ij}(t)$ form a fixed deterministic sequence. By \eqref{eq:weights},
+$A_{ii}=1/\pi_i\ge1/\Nmax$. Since $w$ is symmetric,
+$\sum_{i\in S,j\notin S}\frac{w_{ij}}{\pi_i}\ge\frac1{\Nmax}\sum_{i\in S,j\notin S}w_{ij}=\frac1{\Nmax}\sum_{i\notin S,j\in S}w_{ij}\ge
+\frac1{\Nmax}\sum_{i\notin S,j\in S}\frac{w_{ij}}{\pi_i}$, so (ii) of \cref{lem:TN} holds with $\alpha=1/\Nmax$. Apply \cref{lem:TN} to each
+coordinate; $A_{ij}+A_{ji}\ge2w_{ij}/\Nmax$ gives (i) and (ii) of the proposition. For (iii), if $\ell_{ij}\in(0,1)$, pick $\ell'\in(\ell_{ij},1)$;
+eventually $\|z_i-z_j\|<\ell'$, so $w_{ij}(t)\ge s_t^{-\ell'^2}$ and $\sum_tw_{ij}=\infty$, which contradicts (ii).
+\end{proof}
+
+\begin{proof}[Proof of \cref{thm:planted}]
+Let $\varepsilon_t:=e_{\max}\delta s_t^{-\delta^2}$ and $\eta_t:=\sum_{u<t}\varepsilon_u\le\eta$, by the integral bound and (A3). We prove by induction
+$H(t)$: $z_i(t)\in C_k+\bar B(\eta_t)$ for all $k$ and $i\in B_k$. $H(0)$ holds. Assume $H(t)$. If $i\in B_k$, $j\in B_l$, $k\ne l$ and
+$\{i,j\}\in E$, then $k\sim l$ and $\|z_i-z_j\|\ge\dist(C_k,C_l)-2\eta_t\ge\delta$ by (A2). For $i\in B_k$ write $z_i(t+1)=y_i+\xi_i$ with
+\[
+y_i:=z_i+\sum_{j\in N(i)\cap B_k}\alpha_{ij}(z_j-z_i),\qquad \xi_i:=\sum_{j\in N(i)\setminus B_k}\alpha_{ij}(z_j-z_i).
+\]
+The point $y_i$ is a convex combination of $\{z_j(t):j\in B_k\}$: the coefficient of $z_i$ is $\alpha_{ii}+\sum_{j\notin B_k}\alpha_{ij}\ge0$,
+and the coefficients sum to $1$. Hence $y_i\in C_k+\bar B(\eta_t)$. Since $\pi_i\ge1$, $d_{ij}\ge\delta$ and $x\mapsto xe^{-x^2L}$ decreases on
+$[1/\sqrt{2L},\infty)$ with $\delta>1\ge1/\sqrt{2\log2}$, we get $\|\xi_i\|\le\sum_{j\in N(i)\setminus B_k}d_{ij}e^{-d_{ij}^2L_t}\le\varepsilon_t$. This is
+$H(t+1)$. For a within-block edge, $\|z_i-z_j\|\le D_k+2\eta\le1$ by (A1), so $w_{ij}\ge s_t^{-1}$ and $\sum_tw_{ij}=\infty$; by
+\cref{prop:dichotomy}(ii) and connectivity of $G[B_k]$, all of $B_k$ shares one limit in the closed set $C_k+\bar B(\eta)$. Adjacent block
+limits are at distance $\ge\dist(C_k,C_l)-2\eta\ge\delta$.
+\end{proof}
+
+\begin{proof}[Proof of \cref{cor:planted}]
+(a) Take $C_k=\bar B(\mu_k,r_k)$, so $D_k=2r_k$ and $\dist(C_k,C_l)\ge\|\mu_k-\mu_l\|-r_k-r_l$.
+(b) Let $\ell:=\log(t_0-1)>e$, $\gamma:=2\log\ell/\ell\in(0,1)$, $\delta:=\sqrt{1+\gamma}$, $\eta:=e_{\max}\delta/(2\ell\log\ell)$, and
+$\Gamma(t_0):=\delta+2\eta=\sqrt{1+\gamma}\,(1+\frac{e_{\max}}{\ell\log\ell})$. Then $(t_0-1)^{1-\delta^2}=e^{-\gamma\ell}=\ell^{-2}$, so (A3) holds
+with equality. (A1) holds once $2\eta\le\theta$, and (A2) is the separation assumption. Finally $\sqrt{1+\gamma}\le1+\log\ell/\ell$ and
+$\ell\sim\log t_0$. Necessity: for a block-regular graph with block-constant features, separation below $\kappa(t_0;\rho_A,\rho_B)$ merges the
+blocks by \cref{thm:two-block}(ii).
+\end{proof}
+
+\begin{proof}[Proof of \cref{prop:sharp}]
+Take two $k$-cliques $Q_1,Q_2$ joined by a perfect matching, with $z\equiv0$ on $Q_1$ and $z\equiv D$ on $Q_2$. This is block-regular with
+$\rho_A=\rho_B=1/k$, and the gap obeys $d'=d\,\frac{k-a}{k+a}\ge d(1-2a/k)$ with $a=s_t^{-d^2}$. Let $\delta:=(1+D)/2$. If $d_u\ge\delta$ for all
+$u<t$, then $d_t\ge D\big(1-\frac2k\frac{(t_0-1)^{1-\delta^2}}{\delta^2-1}\big)\ge\delta$, provided
+$k\ge\frac{2D(t_0-1)^{1-\delta^2}}{(\delta^2-1)(D-\delta)}$. By induction the gap stays $\ge\delta>1$. (At $t_0=602$, $k=100$ and $D=1.1$, the gap ends at
+$1.071$.)
+\end{proof}
+
+%=====================================================================
+\section{Proofs for learned attention}\label{app:learned}
+%=====================================================================
+
+Throughout, $c=1$, $f$ is a score, $m_{ij}=f(z_i,z_i)-f(z_i,z_j)$ and $w_{ij}=s_t^{-m_{ij}}$.
+
+\begin{proof}[Proof of \cref{prop:margin}]
+Write $x=z_i$, $y=z_j$ and $J=J_s+J_a$. The terms of $f(x,\cdot)$ that depend only on $x$ cancel, and $x^\top J_ax=0$, so
+$m_{ij}=x^\top J_sx-x^\top J_sy-x^\top J_ay-\frac12x^\top\Omega x+\frac12y^\top\Omega y+b^\top(x-y)$. Expanding
+$\frac12(x-y)^\top J_s(x-y)+\mathcal V(x)-\mathcal V(y)$ gives the same expression without the term $-x^\top J_ay$. Adding the formula for $m_{ji}$, the potential
+terms cancel and $x^\top J_ay+y^\top J_ax=0$.
+\end{proof}
+
+\begin{lemma}[two-block reduction, any score]\label{lem:reduction-learned}
+On a block-regular graph with block-constant features, $z_A'=z_A+p_A(z_B-z_A)$ and $z_B'=z_B-p_B(z_B-z_A)$ with $p_X=\rho_Xa_X/(1+\rho_Xa_X)$,
+$a_A=s_t^{-m_{AB}}$ and $a_B=s_t^{-m_{BA}}$. Hence $z_B'-z_A'=k(z_B-z_A)$ with $k=1-p_A-p_B\in(-1,1)$, and both new values lie on the segment
+between the old ones.
+\end{lemma}
+
+\begin{proof}
+A node of $A$ sees $k_A$ nodes with margin $0$ and $e_A$ nodes with margin $m_{AB}$, so $z_A'=(k_Az_A+e_Aa_Az_B)/(k_A+e_Aa_A)$. The same holds for
+every node of $A$, and symmetrically for $B$. Since $p_X\in[0,1)$, $|k|<1$, and expanding $1-p_A-p_B$ over the common denominator gives
+$k=(1-Pa_Aa_B)/((1+\rho_Aa_A)(1+\rho_Ba_B))$.
+\end{proof}
+
+\paragraph{The margin map~\eqref{eq:margin-map}.} By \cref{lem:reduction-learned} the block values stay on the line $\{p+\xi e\}$ through the initial
+values. For $x=p+\xi e$ and $y=p+\eta e$ we have $x^\top Jy=\sigma\xi\eta+\xi\,e^\top Jp+\eta\,p^\top Je+p^\top Jp$, because $e^\top J_ae=0$, and
+$-\frac12y^\top\Omega y+b^\top y=-\frac12\sigma\omega\eta^2+\eta(b-\Omega p)^\top e+\text{const}$. With $\tau=p^\top Je+(b-\Omega p)^\top e$, the terms in
+$\xi$ alone cancel and
+\[
+f(x,x)-f(x,y)=\tfrac12\sigma\omega\Delta^2-\Delta\,g(\xi),\qquad \Delta=\eta-\xi,\qquad g(\xi)=\sigma(1-\omega)\xi+\tau .
+\]
+Let $\xi_A<\xi_B$ be the block positions and $d=\xi_B-\xi_A$ (signed, so that crossings are allowed). Then $M_A=\frac12\sigma\omega d^2-d\,g(\xi_A)$,
+$M_B=\frac12\sigma\omega d^2+d\,g(\xi_B)$ and, since $g(\xi_B)-g(\xi_A)=\sigma(1-\omega)d$, $M_A+M_B=\sigma d^2$. By \cref{lem:reduction-learned},
+$\xi_A'=\xi_A+p_Ad$, $d'=kd$ and $g(\xi_A')=g(\xi_A)+\sigma(1-\omega)p_Ad$. Substituting $d\,g(\xi_A)=\frac12\sigma\omega d^2-M_A$,
+\[
+M_A'=\tfrac12\sigma\omega k^2d^2-kd\,g(\xi_A')=k\big[M_A-\sigma d^2\big(\tfrac\omega2(1-k)+(1-\omega)p_A\big)\big],
+\]
+which is \eqref{eq:margin-map} because $1-k=p_A+p_B$ and $\sigma d^2=M_A+M_B$. The case of $B$ is symmetric. We checked the map against the
+feature-space dynamics for random $J,\Omega,b$ in $\R^3$ (relative error below $10^{-13}$).
+
+\begin{lemma}[two properties of the map]\label{lem:map}
+Let $\sigma>0$, $0\le\omega\le1$ and $P\le1$. Then $0<k<1$ at every layer, and:
+\begin{enumerate}[label=(\alph*),leftmargin=2em,itemsep=1pt]
+\item if $M_X>0$, then $M_X'\le M_X$;
+\item if $M_X\le0$, then $M_X'\le0$ and $k\le1/(1+\rho_X)$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+$a_Aa_B=s_t^{-(M_A+M_B)}=s_t^{-\sigma d^2}<1\le1/P$, so $k>0$ by \cref{lem:reduction-learned}, and $k<1$ because $p_A,p_B>0$. The bracket in
+\eqref{eq:margin-map} is at most $M_X$, because $\frac\omega2(p_A+p_B)+(1-\omega)p_X\ge0$. (a) If the bracket is nonnegative, $M_X'\le$ bracket
+$\le M_X$; otherwise $M_X'<0<M_X$. (b) The bracket is at most $M_X\le0$, so $M_X'\le0$. Moreover $a_X\ge1$ gives $p_X\ge\rho_X/(1+\rho_X)$ and
+$k\le1-p_X\le1/(1+\rho_X)$.
+\end{proof}
+
+\begin{proof}[Proof of \cref{thm:learned}]
+\emph{(i)} Since $0<k<1$, the blocks never cross and each block value moves monotonically towards the other, so both converge and $d_t$
+decreases. Suppose first that $\min(M_A,M_B)>1$ at every layer. By \cref{lem:map}(a) the margins decrease to limits $\ge1$, and the limiting gap
+satisfies $\sigma d_\infty^2=\lim(M_A+M_B)\ge2$.
+
+Suppose now that $\min(M_A,M_B)\le1$ at layer $T$, say $M_X(T)\le1$. By \cref{lem:map}, $M_X(t)\le1$ for all $t\ge T$: a positive margin does not
+increase, and a nonpositive one stays nonpositive. Hence $a_X\ge s_t^{-1}$, $p_X\ge\frac{\rho_X}{1+\rho_X}s_t^{-1}$ and
+$d_{t+1}=k\,d_t\le(1-p_X)d_t\le\big(1-\frac{\rho_X}{1+\rho_X}s_t^{-1}\big)d_t$ for $t\ge T$. Since $\sum_ts_t^{-1}=\infty$, $d_t\to0$, and the two block
+values converge to one point.
+
+\emph{(ii)} If $M_A=M_B$ and $\rho_A=\rho_B=\rho$, then $p_A=p_B=:p$, the two brackets in \eqref{eq:margin-map} agree, and
+$M_X'=k(M_X-2M_Xp)=k^2M_X$. Here $k=1-2p=(1-\rho a)/(1+\rho a)=\psi(a)$ with $a=s_t^{-M_X}=s_t^{-(\sqrt{M_X})^2}$. So
+$\sqrt{M_X'}=F_t(\sqrt{M_X})$ with $F_t$ from~\eqref{eq:twoblock} for $\rho_A=\rho_B=\rho$.
+
+\emph{(iii), necessity.} Suppose the pair persists. By (i) both margins exceed $1$ at all layers, so (a) of \cref{lem:map} applies throughout. Let
+$X$ be a block with $M_X(0)=\min(M_A,M_B)=1+\varepsilon$. Then $1<M_X(t)\le1+\varepsilon$, hence $s_t^{-(1+\varepsilon)}\le a_X\le s_t^{-1}\le t_0^{-1}$ and
+$p_X\ge\rho_X(1+\rho_X/t_0)^{-1}s_t^{-(1+\varepsilon)}$. Dropping $\frac\omega2p_Y\ge0$ in the bracket and using $k\le1$ and $M_A+M_B\ge M_X$,
+$M_X'\le M_X\big(1-(1-\frac\omega2)p_X\big)$. Therefore
+\[
+\varepsilon\ \ge\ \log\frac{M_X(0)}{M_X(\infty)}\ \ge\ \Big(1-\frac\omega2\Big)\sum_{t\ge0}p_X(t)\ \ge\ \Big(1-\frac\omega2\Big)\rho_-\,\frac{t_0^{-\varepsilon}}{\varepsilon},
+\]
+using $\sum_{t\ge0}(t_0+t)^{-1-\varepsilon}\ge t_0^{-\varepsilon}/\varepsilon$. So $\varepsilon^2\ge(1-\frac\omega2)\rho_-t_0^{-\varepsilon}$, and $\varepsilon\ge\varepsilon_\omega$
+because the left side increases and the right side decreases in $\varepsilon$.
+
+\emph{(iii), certificate C1$'$.} Suppose both margins are at least $\delta^2$ at all layers $u<t$. They do not increase (\cref{lem:map}(a)), so
+$M_A+M_B\le R\delta^2$ and $(M_A+M_B)/M_X\le R$. Moreover $p_X\le\rho_Xs_u^{-\delta^2}=:\rho_Xq_u$, so $p_A+p_B\le\lambda q_u$ and
+$\frac\omega2(p_A+p_B)+(1-\omega)p_X\le\lambda q_u$. From~\eqref{eq:margin-map},
+\[
+\log M_X'\ge\log M_X+\log(1-\lambda q_u)+\log(1-R\lambda q_u)\ge\log M_X-\frac{(1+R)\lambda q_u}{1-R\lambda q},
+\]
+using $R\ge2$ and $q_u\le q$. Summing with $\sum_{u\ge0}q_u\le(t_0-1)^{1-\delta^2}/(\delta^2-1)$ shows $\log M_X(t)\ge\log m-\log(m/\delta^2)=\log\delta^2$,
+and induction on $t$ closes the argument.
+
+\emph{(iv)} Take $\gamma_-=\varepsilon_\omega$. As $L=\log t_0\to\infty$, $\varepsilon_\omega L=\log((1-\frac\omega2)\rho_-)-2\log\varepsilon_\omega$, so
+$\varepsilon_\omega=(2+o(1))\log L/L$. For $\gamma_+$, let $\ell=\log(t_0-1)$ and $\delta^2=1+2\log\ell/\ell$. Then
+$(t_0-1)^{1-\delta^2}/(\delta^2-1)=1/(2\ell\log\ell)$, $R\le\bar M$ and $q\to0$. So C1$'$ holds as soon as
+$\log(m/\delta^2)\ge(1+o(1))(1+\bar M)\lambda/(2\ell\log\ell)$, which is implied by $m\ge1+\gamma_+$ with
+$\gamma_+=2\log\ell/\ell+O(1/(\ell\log\ell))$. By \cref{thm:two-block}(v), $\kappa(t_0)^2=1+(2+o(1))\log L/L$ as well.
+\end{proof}
+
+\begin{proof}[Proof of \cref{prop:oscillation}]
+Let $z_A=-v$ and $z_B=v$. Then $m_{AB}=(-v)^\top J(-2v)=2v^\top J_sv=m_{BA}$, so $p_A=p_B=p$, and by \cref{lem:reduction-learned} the midpoint stays
+at $0$. Hence $z_A=-z_B$ for all $t$. With $d=\|z_B-z_A\|=2\|v\|$ and $D^2=|\sigma|d^2/2$, both margins equal $-D^2$. So $a=s_t^{D^2}\ge1$, and
+$\rho a\ge1$ gives $k=1-2p=-(\rho a-1)/(\rho a+1)\le0$, with $k<0$ when $D>0$. Writing $\tilde a=1/a=s_t^{-D^2}$,
+\[
+|k|=\frac{1-\tilde a/\rho}{1+\tilde a/\rho}=\frac{1-\tilde a^2/\rho^2}{(1+\tilde a/\rho)^2},
+\]
+which is $\psi(\tilde a)$ of \cref{lem:reduction} for cut ratios $(1/\rho,1/\rho)$, with $P=1/\rho^2\le1$. So $D_{t+1}=F_t(D_t)$ for these cut ratios, and
+\cref{thm:two-block}(i)--(ii) gives the dichotomy. In the persisting case $k<0$ at every layer, so $z_B-z_A$ changes sign at every layer, while
+$\sum_t\alpha_{AB}(t)=\infty$ because $p\ge\frac12$.
+\end{proof}
+
+\begin{remark}[GAT]\label{rem:gat}
+Let $f(x,y)=\phi(u^\top x+v^\top y)$ with $\phi(r)=\max(r,\beta r)$, $0\le\beta<1$, and write $U_i=u^\top z_i$ and $V_i=v^\top z_i$. Since
+$\phi(r)=\beta r+(1-\beta)r_+$ and the linear parts cancel,
+\[
+m_{ij}+m_{ji}=(1-\beta)\big[(U_i+V_i)_+-(U_i+V_j)_+-(U_j+V_i)_++(U_j+V_j)_+\big].
+\]
+Grouping the four terms in pairs by $U$, or by $V$, and using that $r\mapsto r_+$ is nondecreasing and $1$-Lipschitz, gives
+$|m_{ij}+m_{ji}|\le(1-\beta)\min(|U_i-U_j|,|V_i-V_j|)$. If the four arguments $U_i+V_i$, $U_i+V_j$, $U_j+V_i$ and $U_j+V_j$ share a sign, $\phi$ is linear on them and
+$m_{ij}=-m_{ji}$. On a two-block pair one block $X$ then has a nonpositive margin, $a_Aa_B=1$, and by \cref{lem:reduction-learned}
+$0\le k\le1-p_X\le1/(1+\rho_X)$.
+\end{remark}
+
+\begin{proposition}[separation for any score]\label{prop:separation}
+Let $V=B_1\sqcup\dots\sqcup B_K$, let $C_k\supseteq\{z_i(0):i\in B_k\}$ be convex, let $\eta\ge0$ and $\delta>1$, and let $C_k^\eta=C_k+\bar B(\eta)$.
+Suppose that $f(x,x)-f(x,y)\ge\delta^2$ for all $x\in C_k^\eta$, $y\in C_l^\eta$ and $k\sim l$, and that
+$e_{\max}R\,(t_0-1)^{1-\delta^2}/(\delta^2-1)\le\eta$, where $R=\max_{k\sim l}\diam(C_k^\eta\cup C_l^\eta)$. Then $z_i(t)\in C_k^\eta$ for all $t$ and
+$i\in B_k$. In particular no node of $B_k$ comes closer than $\dist(C_k,C_l)-2\eta$ to a node of an adjacent block $B_l$.
+\end{proposition}
+
+\begin{proof}
+As in the proof of \cref{thm:planted}, with $\eta_t=\sum_{u<t}e_{\max}Rs_u^{-\delta^2}\le\eta$, assume $z_i(t)\in C_k+\bar B(\eta_t)$ for all $k$ and
+$i\in B_k$, and split $z_i(t+1)=y_i+\xi_i$ into the in-block part $y_i$, a convex combination of in-block values, and the cross-block part
+$\xi_i=\sum_{j\in N(i)\setminus B_k}\alpha_{ij}(z_j-z_i)$. Since $\pi_i\ge w_{ii}=1$, each cross weight is $\alpha_{ij}\le w_{ij}\le s_t^{-\delta^2}$, and
+$\|z_j-z_i\|\le R$. Hence $\|\xi_i\|\le e_{\max}Rs_t^{-\delta^2}$, which is the induction step. The integral bound gives $\eta_t\le\eta$.
+\end{proof}
+
+%=====================================================================
+\section{Validated numerics}\label{app:numerics}
+%=====================================================================
+
+\paragraph{Interval evaluation.} For the two-block map we propagate an interval $[d^-,d^+]$ using monotonicity: $F_t$ is increasing in $d$,
+so $[F_t(d^-),F_t(d^+)]$ encloses the image, evaluated with outward rounding. For chains we evaluate \eqref{eq:chain} with interval weights
+$w_l\in[s_t^{-(g_l^+)^2},s_t^{-(g_l^-)^2}]$ and use that every term of \eqref{eq:chain} is monotone in each argument on the relevant ranges.
+Outward rounding uses \texttt{nextafter}; $\exp$ and $\log$ are widened by 4 ulp. For \cref{thm:cap}(a,b) we repeat the computation with
+\texttt{mpmath} intervals at 160 bits; all eight proofs run in about 7 seconds.
+
+\paragraph{Certificates.} At checkpoints $T$ we try to classify every gap from its enclosure at time $T$ (offset $s_T=t_0+T$).
+\begin{itemize}[leftmargin=1.3em,itemsep=1pt]
+\item \emph{C1, persistence.} A gap with lower bound $g^-_T$ persists if \eqref{eq:C1} holds at offset $s_T$ for some $\delta\in(1,g^-_T)$, with
+$\lambda=2$, $P=1$ for chains. This is valid for chains by \cref{lem:comparison}: the gap dominates the isolated trajectory, which C1 keeps above
+$\delta$.
+\item \emph{C2, merging block.} Take a maximal run of consecutive gaps not certified by C1. It forms a block of $k$ layers with diameter
+$D_B\le\sum g_l^+$, and its outer neighbours persist at levels $\ge\delta$ by C1. Each boundary layer is pulled outwards by at most
+$g\,s_t^{-g^2}\le\delta s_t^{-\delta^2}$ per step, so the diameter of the block stays below $D_B+2\delta\sum_{u\ge0}(s_T+u)^{-\delta^2}$. If this is
+$\le1$, every internal gap stays $\le1$, has non-summable weight, and closes by \cref{prop:dichotomy}(ii). The implementation uses the
+stronger test $D_B+2(\delta+1)\sum_u(s_T+u)^{-\delta^2}\le1/\sqrt{\lceil(k-1)/2\rceil}$, inherited from an earlier path-product argument; it
+implies the test above.
+\item \emph{Two blocks.} $d_T^+\le1$ certifies merging (\cref{thm:two-block}(i)); C1 certifies persistence.
+\end{itemize}
+A partition is certified when every gap is classified. Enclosures of $\kappa(t_0)$ are pairs $(d^-,d^+)$ with $d^-$ certified to merge and $d^+$
+certified to persist; by \cref{thm:two-block}(ii) $\kappa\in(d^-,d^+]$.
+
+\begin{table}[h]
+\centering\small
+\input{tables/tab_kappa}
+\caption{Validated enclosures of $\kappa(t_0)=\kappa(t_0;1,1)$, the explicit bounds of \cref{thm:two-block}(vi) and the leading-order
+term of (v). The enclosures widen at large $t_0$ because certifying persistence just above $\kappa$ needs many steps.}
+\label{tab:kappa}
+\end{table}
+
+\begin{table}[h]
+\centering\small\setlength{\tabcolsep}{4pt}
+\input{tables/tab_rho}
+\caption{Validated enclosures of $\kappa(t_0;\rho,\rho)$ for symmetric cut ratios (discrete map, at most $10^6$ steps). The increase with
+$\rho$ is \cref{thm:two-block}(iv); the size of the shift is \cref{cor:topology}.}
+\label{tab:rho}
+\end{table}
+
+\begin{table}[h]
+\centering\small\setlength{\tabcolsep}{4pt}
+\input{tables/tab_residual}
+\caption{Residual $(\kappa-1)L-[\log L-\frac12\log\log L+\frac12\log\lambda]$ of the two-term law (\cref{thm:two-block}(v), which proves
+that it tends to $0$), and the residual after adding the third term $\frac{\log\log L-\log\lambda+2}{4\log L}$ (\cref{prop:third}, which proves that this
+residual is $o(1/\log L)$). Computed
+in the continuum limit $dx/d\tau=-\lambda(1+x)e^{-\tau(2x+x^2)}$, $\tau=\log s$, by shooting for the critical $x(L)$. The continuum values lie inside
+the discrete enclosures of \cref{tab:kappa} for $100\le t_0\le10^6$.}
+\label{tab:residual}
+\end{table}
+
+\begin{table}[h]
+\centering\small
+\input{tables/tab_rigorous}
+\caption{Initial conditions of the three-layer chain at $t_0=11$ whose limiting partition is proved with \texttt{mpmath} interval arithmetic
+(\cref{thm:cap}(b)); $T$ is the layer at which all certificates hold. For comparison, $\kappa(11)\in(1.538,1.540]$.}
+\label{tab:rigorous}
+\end{table}
+
+%=====================================================================
+\section{Experimental details}\label{app:exp}
+%=====================================================================
+
+\paragraph{E1--E3 (chains and two blocks).} Enclosures of $\kappa$: bisection with float trajectories, followed by certification of the two
+ends with at most $10^6$ steps ($t_0\le10^3$) or $10^7$ steps. The jump (\cref{fig:twoblock}c) uses 521 initial gaps in $[0.9,2.2]$ at $t_0=11$, all certified. The
+three-layer grid (E2) is the $240\times240$ grid with step $0.0125$; the largest certification time is 172,282 layers. The normalised boundaries
+of \cref{fig:phase}b are float estimates: bisection in $u_0$ on trajectories of length $10^5$ ($10^6$ for $t_0=10^5$),
+for 100 values $v_0\in[0.02,2]\,\kappa$ at each $t_0$. E3 draws 4000 vectors of four gaps uniformly from
+$[0.2,2.6]$ at $t_0=17$; 3972 are certified (the largest certification time is 222,940 layers), and 5 gaps are excluded as ambiguous for the
+early-depth rule. Partition sizes: 15 runs end with one cluster, 648 with two, 1980 with three, 1138 with four and 191 with five.
+
+\paragraph{E4 (noisy SBMs).} SBM with $K=4$ blocks of 150 nodes, $p_{\rm in}=0.2$, $p_{\rm out}\in\{0,0.005,0.01,0.02,0.05\}$, 5 seeds each. Features
+in $\R^8$: block $k$ has mean $\frac{3}{\sqrt2}e_k$ (pairwise distance $3$) plus $\mathcal N(0,\sigma^2I)$ noise,
+$\sigma\in\{0,0.03,0.06,0.1,0.15,0.2,0.25,0.3,0.4,0.5\}$. We run the full node-level dynamics for $T=4000$ layers with $t_0=602$. The final
+partition is the set of connected components of edges shorter than $0.05$. We also record the fraction of edges with lengths in $[0.05,0.9]$
+(unresolved, by \cref{prop:dichotomy}) and the ARI between the partitions at layers $2000$ and $4000$. At most $3.3\cdot10^{-4}$ of the edges are unresolved in any run,
+and this ARI is at least $0.92$ in every run. The threshold-graph rule uses
+$\kappa(t_0+t_1)$ for $t_1\in\{0,5,20\}$ ($\kappa\approx1.3015,1.3012,1.3005$). The certificates of \cref{thm:planted} are evaluated on the exact initial
+conditions, scanning $\eta\in(0,(1-D)/2]$ and taking the smallest admissible $\delta$; the hull form lower-bounds $\dist(C_k,C_l)$ by projecting
+onto the direction joining block means.
+
+\paragraph{E5 (learned metric).} SBM with 3 blocks of 120 nodes, $p_{\rm in}=0.15$, $p_{\rm out}=0.01$, $t_0=362$, $\kappa\approx1.318$. Features in
+$\R^8$: class means on a triangle with side $1$ in coordinates 1--2, a binary nuisance factor (independent of the class) with value $0$ or $3$ in
+coordinate 3, and $\mathcal N(0,0.15^2I)$ noise in all coordinates. Metrics: $W=I$; the projection onto coordinates 3--4 (nuisance); and the LDA
+projection fitted on the 20\% training nodes, rescaled so that the closest pair of training class means is $2\kappa$ apart (calibrated) or
+$0.4\kappa$ apart (too small). Attention uses $z=Wh$ and values $h$. A logistic-regression probe is trained on $h$ at each depth on the training
+nodes and evaluated on the rest.
+
+\paragraph{E9 (learned attention).} \emph{Two blocks:} the margin map~\eqref{eq:margin-map} with $\rho_A=\rho_B=1$ in float64. A trajectory is
+classified as merging once $\min(M_A,M_B)\le1$ (\cref{thm:learned}(i)) and as persisting once certificate C1$'$ holds; C1$'$ is checked every 64
+layers with $\delta^2=1+f\,(m-1)$, $f\in\{0.2,0.4,0.6,0.8\}$. Trajectories unresolved after $2\cdot10^6$ layers (critical slowing down, at most 24 of
+the 36 bisection steps per point) are counted as persisting. The diagonal values are $2.3674$ at $t_0=11$, i.e.\ $\kappa=1.5386$, inside the enclosure
+of \cref{thm:cap}(a), and $1.6574$ at $t_0=10^3$.
+\emph{Graphs:} the SBMs of E4 with $p_{\rm out}=0.01$ and $\sigma\in\{0.1,0.2,0.3\}$, 5 seeds each, with all features shifted by $v=\nu e_1$ towards the mean
+of block~1. The score is $f(x,y)=x^\top Jy$ with $J=2I$ (tied queries and keys) or $J=2I+0.3\,G/\|G\|_2$ with standard Gaussian $G$ (untied;
+$\lambda_{\min}(J_s)\ge1.7$). With $J_s=2I$ the symmetric part of every margin is the squared distance of E4. At the block means, the margin of every
+other block towards block~1 is $9-3\sqrt2\,\nu$, which crosses $\kappa(t_0)^2$ at $\nu\approx1.72$; the margins in the opposite direction are
+$9+3\sqrt2\,\nu$. We run 4000 layers at $t_0=602$ and read off the final partition as in E4. The rules are evaluated after $t_1\in\{0,5,20\}$ layers
+with threshold $\kappa(t_0+t_1)^2$.
+
+\paragraph{E8 (real graphs).} \emph{Data:} Roman-empire and Amazon-ratings with their ten official 50/25/25 splits~\citep{platonov2023}
+(edges symmetrised, self-loops added), and Peptides-func with its official split~\citep{dwivedi2022}; sources and SHA-256 hashes are listed
+with the code. \emph{Untrained dynamics:} the values $h$ are the first 64 principal components of the standardised node features (of the
+one-hot atom features for Peptides-func). The PCA metric keeps the leading 16 components (8 for Peptides-func), scaled so that the median
+non-self edge has length $s\,\kappa(t_0)$, $s\in\{0.5,1,2\}$. The LDA metric is fitted on the training nodes of split 0 and scaled so that the
+closest pair of class means is $2\kappa$ or $0.4\kappa$ apart. We run 4000 layers at $t_0=|V|+2$ ($t_0=152$ for the molecules) and read off
+the final partition and the probe accuracies as in E4 and E5. \emph{Training:} on the node graphs all models have width 64, weight decay $5\cdot10^{-4}$ and
+dropout $0.2$, and train with full-batch Adam for at most 150 epochs with patience 30 on validation accuracy. On split 0 each (model, depth)
+picks the learning rate in $\{0.01,0.003\}$ by validation accuracy; splits 1 and 2 reuse it. The Gaussian networks use the default
+temperature start ($m=1$). For Peptides-func the node states are mean-pooled into a 10-label readout, trained for 30 epochs (batch 128,
+learning rate $10^{-3}$ with a cosine schedule, no weight decay, dropout $0.1$, one seed) and scored by average precision. \emph{Trained networks:} every
+saved cooled Gaussian network (both learning rates on split 0, and splits 1 and 2) is rerun from its input states $Wx/\sqrt c$ for 4000
+layers at $t_0=11$; the threshold-graph rule uses $\kappa(11+t_1)$ with $t_1\in\{0,K\}$.
+
+\paragraph{E6b/E7 (training): data.} The CSBMs have 3 classes of 150 nodes and features in $\R^{16}$: class means in random directions with
+norm $\mu/\sqrt2$, plus $\mathcal N(0,\sigma^2I)$ noise. Homophilous clean: $p_{\rm in}=0.05$, $p_{\rm out}=0.005$, $\mu=3$, $\sigma=0.25$;
+homophilous noisy: the same graph with $\mu=1.5$, $\sigma=1$; heterophilous: $p_{\rm in}=0.005$, $p_{\rm out}=0.04$, $\mu=3$, $\sigma=1$. The
+ring task has 3 classes, each a ring lattice of 200 nodes joined to the neighbours at ring distance 1 and 2. Each node receives, with
+probability $p_x$ ($0.05$ sparse, $0.2$ dense), one edge to a uniformly chosen node of another class. Four anchor nodes per class ($2\%$) carry
+features $\mu_y+\mathcal N(0,0.3^2I)$ with $\|\mu_y\|=3$ in $\R^{16}$. All other nodes carry pure noise $\mathcal N(0,I)$, so a typical node is
+about 12 hops from the nearest anchor of its class. Every graph has self-loops. Splits are random 20/20/60 (train/validation/test), and
+seed $s$ draws its own graph, features and split.
+
+\paragraph{E6b/E7 (training): models.} Every model maps the input with a linear layer to width 16 and classifies the final node states with a
+linear readout. GCN, residual GCN ($h\leftarrow h+\mathrm{ReLU}(\hat Ah W_l)$) and PairNorm (scale $s$) use a weight matrix per layer. GCNII
+uses $\alpha\in\{0.1,0.3\}$ and $\lambda=0.5$. APPNP ($\alpha\in\{0.1,0.3\}$) and SGC use the input map only. Linear GRAND (step size
+$\tau\in\{0.5,0.1\}$) adds query and key maps for one dot-product attention, computed from the input states and reused at every step. GAT and
+residual GAT use one head of width 16. The Gaussian networks
+apply $K$ layers of~\eqref{eq:model} to $z=Wx$, and the attention is computed and applied on the same states. The cooled version uses
+temperature $c/\log(l+11)$ at layer $l$, and the constant one uses $T$. The parameter $c$ (or $T$) is learned in log scale and initialised
+so that the first-layer temperature equals $m$ times the median squared edge length of $Wx$ at initialisation, with $m\in\{1,1/30\}$.
+The cooled dot-product network replaces the Gaussian score by $\langle W_Qz_i,W_Kz_j\rangle$, so its score is $f(x,y)=x^\top Jy$ with
+$J=W_Q^\top W_K$ and $b=0$ (\cref{sec:learned}). The maps $W_Q,W_K\in\R^{16\times16}$ are shared by all layers and start at the identity, and $c$
+is initialised in the same way, with the median absolute margin $|m_{ij}|$ over the edges in place of the squared edge length.
+Training is full-batch Adam for at most 300 epochs, with patience 60 on validation accuracy and the epoch of best validation accuracy
+reported. Each (task, model, depth, seed) picks the best of 8 configurations on validation accuracy: learning rate $\{0.01,0.003\}$, dropout
+$\{0,0.5\}$, and the two values of the model-specific hyperparameter above. Models without one use weight decay
+$\{5\cdot10^{-4},0\}$ instead; all others use $5\cdot10^{-4}$. \Cref{tab:train-e6b,tab:train-e7} give all results (5 seeds, mean and
+95\% confidence half-width). The 1675 tasks of 8 trainings each took under 12 hours of wall time in total on an 8-core laptop CPU, and the
+300 tasks of the dot-product network another 3.6 hours. For the dot-product network, the run reported for each (task, depth, seed) is rerun
+in float64 from its input states $z=Wx$ divided by $\sqrt c$, so that margins are in units of $c$, with its learned $J$ and $t_0=11$
+for 4000 layers. Test accuracy is read with the trained readout at layers $K$ and 4000. The final partition is read off as in E4, and a
+partition counts as resolved if at most $1\%$ of the edges have lengths between $10^{-6}$ and $10^{-2}$ times the median initial edge length
+and the ARI between the partitions at layers 2000 and 4000 exceeds $0.99$. The rules use threshold $\kappa(11+t_1)^2$, with
+$\kappa(11)=1.5386$, $\kappa(16)=1.4968$ and $\kappa(31)=1.4400$.
+
+\begin{table}[p]
+\centering\scriptsize\setlength{\tabcolsep}{3.5pt}
+\input{tables/tab_train_e6b}
+\caption{Test accuracy on the CSBM regimes (E6b): mean $\pm$ 95\% confidence half-width over 5 seeds, each tuned over 8 configurations.
+Bold marks the best mean in each column. The MLP row is the depth-0 baseline.}
+\label{tab:train-e6b}
+\end{table}
+
+\begin{table}[p]
+\centering\scriptsize\setlength{\tabcolsep}{3.5pt}
+\input{tables/tab_train_e7}
+\caption{Test accuracy on the long-range ring task (E7), as in \cref{tab:train-e6b}. Chance is $1/3$.}
+\label{tab:train-e7}
+\end{table}
+
+\begin{table}[p]
+\centering\scriptsize\setlength{\tabcolsep}{3.5pt}
+\input{tables/tab_train_e8}
+\caption{Test accuracy on the real node graphs (E8): mean $\pm$ 1.96 standard errors over three official splits. Split 0 selects the learning
+rate per (model, depth) on validation accuracy, and splits 1 and 2 reuse it. Bold marks the best mean in each column.}
+\label{tab:train-e8}
+\end{table}
+
+\begin{table}[p]
+\centering\scriptsize\setlength{\tabcolsep}{3.5pt}
+\input{tables/tab_train_e8_pep}
+\caption{Test average precision on Peptides-func (E8), one seed, 30 epochs, protocol in \cref{app:exp}. Bold marks the best in each
+column.}
+\label{tab:train-e8-pep}
+\end{table}

@@ -1,0 +1,10 @@
+[    0.0s] E2a certified three-layer phase diagram (t0 = 11)
+[   16.3s]   grid 240^2 certified in 16.3s
+[   25.0s]   counts {'uncertified': 208, 'one cluster': 10147, '{1,2},{3}': 16739, '{1},{2,3}': 16739, 'all distinct': 13767}; min certified-persist u0 = 1.1625 at v0 = 0.8875
+[   25.0s] E2b finite-depth rescue boundaries for several t0
+[   70.9s]   t0=5: kappa=1.6684, min u*/kappa = 0.770 at v0/kappa = 0.640
+[  113.1s]   t0=11: kappa=1.5382, min u*/kappa = 0.751 at v0/kappa = 0.620
+[  158.1s]   t0=50: kappa=1.4070, min u*/kappa = 0.722 at v0/kappa = 0.640
+[  273.9s]   t0=1000: kappa=1.2816, min u*/kappa = 0.695 at v0/kappa = 0.640
+[ 1049.0s]   t0=100000: kappa=1.1856, min u*/kappa = 0.682 at v0/kappa = 0.640
+[ 1049.1s] done

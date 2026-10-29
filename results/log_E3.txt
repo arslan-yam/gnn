@@ -1,0 +1,12 @@
+[    0.0s] E3 five layers, random gaps
+[   15.2s]   certified 3972/4000; kappa(17) in [1.49084, 1.49159]
+[   17.8s]   t1=0: kappa(t0+t1)=1.4908, gap-level accuracy 0.91270, partition-level 0.6800
+[   24.1s]   t1=1: kappa(t0+t1)=1.4854, gap-level accuracy 0.93977, partition-level 0.7737
+[   27.0s]   t1=2: kappa(t0+t1)=1.4803, gap-level accuracy 0.95915, partition-level 0.8462
+[   29.8s]   t1=5: kappa(t0+t1)=1.4673, gap-level accuracy 0.98250, partition-level 0.9318
+[   32.7s]   t1=10: kappa(t0+t1)=1.4505, gap-level accuracy 0.99144, partition-level 0.9665
+[   35.6s]   t1=20: kappa(t0+t1)=1.4275, gap-level accuracy 0.99559, partition-level 0.9824
+[   38.5s]   t1=50: kappa(t0+t1)=1.3910, gap-level accuracy 0.99755, partition-level 0.9902
+[   41.6s]   t1=100: kappa(t0+t1)=1.3629, gap-level accuracy 0.99862, partition-level 0.9945
+[   45.3s]   t1=1000: kappa(t0+t1)=1.2862, gap-level accuracy 0.99962, partition-level 0.9985
+[   45.3s] done

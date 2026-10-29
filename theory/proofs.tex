@@ -1,0 +1,641 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\diam}{\operatorname{diam}}
+\newcommand{\conv}{\operatorname{conv}}
+\newcommand{\Nmax}{N_{\max}}
+\sloppy\emergencystretch=3em
+
+\title{Two analytic theorems for log-cooled Gaussian attention:\\
+planted partitions at the $\sqrt c$ scale, and nonlocal rescue in three-layer chains}
+\author{Theory notes for the ICML 2027 draft (theory/)}
+\date{27 October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We replace two weak points of the current draft by analytic theorems.
+\textbf{(A)} For an arbitrary graph with a planted partition and vector features, the planted
+partition is the limit of the log-cooled Gaussian-attention dynamics whenever every block has
+feature diameter at most $\sqrt c$ (up to a drift budget $2\eta$) and adjacent blocks are separated
+by $\Gamma(t_0)\sqrt c$, where $\Gamma(t_0) = 1+(1+o(1))\log\log t_0/\log t_0$ is asymptotically
+the sharp two-block threshold $\kappa(t_0)$. In ball form: within-block radius $r\le \sqrt c\,(1/2-\eta)$ and
+mean separation $\Delta \ge 2r + \Gamma(t_0)\sqrt c$. This removes the factor $1/(4\sqrt{\rho})$
+(hop radius $\rho$) of the old condition. The mixing constant is sharp among conditions that depend only on
+block diameters. On the E4 data, the new condition certifies every run with $\sigma\le 0.1$
+(100/100), where the old one certified only $\sigma\le 0.03$.
+\textbf{(B)} For the three-layer chain we prove an exact persistence criterion: gap $1$ persists iff
+$u+v/2$ never drops below $1$. We prove a one-step rescue theorem valid for \emph{every} $t_0\ge 2$ and
+\emph{every} $v_0>0$, with explicit depth. Finally we determine the $t_0\to\infty$ scaling limit of the normalised rescue
+boundary: $u^*(v_0)/\kappa(t_0)\to\varphi(v_0/\kappa(t_0))$ with
+$\varphi(x)=\max\{x,\,1-x/2\}$ for $x<1$ and $\varphi=1$ for $x>1$. Its minimum is $2/3$, at $x=2/3$, which
+explains the observed drift $0.770\to0.682$.
+\end{abstract}
+
+\tableofcontents
+
+%=====================================================================
+\section{Setting, standing facts, and a universal dichotomy}
+%=====================================================================
+
+\paragraph{Model and units.}
+$G=(V,E)$ is a finite undirected graph with a self-loop at every node. $N[i]$ is the closed
+neighbourhood of $i$ and $\Nmax:=\max_i|N[i]|$. Features $z_i(t)\in\R^p$ follow
+\begin{equation}\label{eq:model}
+z_i(t+1)=\sum_{j\in N[i]}\alpha_{ij}(t)\,z_j(t),\qquad
+\alpha_{ij}(t)=\frac{w_{ij}(t)}{\pi_i(t)},\quad
+w_{ij}(t)=s_t^{-\|z_i(t)-z_j(t)\|^2},\quad \pi_i(t)=\sum_{j\in N[i]}w_{ij}(t),
+\end{equation}
+with $s_t:=t+t_0$, $t_0>1$, and $L_t:=\log s_t$. All lengths are in units of $\sqrt c$, i.e.\ the
+schedule $T_t=c/\log(t+t_0)$ has been absorbed (a fixed metric $W$ is absorbed by $z=Wh$, as in
+the main text). Note $w_{ii}=1$ and $0<w_{ij}\le1$, hence
+\begin{equation}\label{eq:pi}
+1\le\pi_i(t)\le\Nmax .
+\end{equation}
+An edge $\{i,j\}$ \emph{merges} if $\|z_i(t)-z_j(t)\|\to0$ and \emph{persists} if
+$\liminf_t\|z_i(t)-z_j(t)\|>0$. For chains these words refer to the gaps.
+
+\subsection{The isolated two-layer recursion}
+Let $F_t(d):=d\,\frac{1-a}{1+a}$ with $a=s_t^{-d^2}$, and let $d_{t+1}=F_t(d_t)$, $d_0>0$ (offset $t_0$).
+The next lemma collects the parts of Theorem~1 of the main text that are used below, with short
+proofs so that this note is self-contained. The sharp asymptotics
+$\kappa(t_0)=1+(1+o(1))\log\log t_0/\log t_0$ (Theorem~1(v) of the main text) is quoted only in
+remarks and is never used in a proof.
+
+\begin{lemma}[two-layer facts]\label{lem:two-layer}
+Let $t_0>1$.
+\begin{enumerate}[label=(\alph*)]
+\item $F_t$ is a continuous increasing bijection of $(0,\infty)$, $F_t(d)\le d$, and for fixed
+$t,d$ the value $F_t(d)$ is nondecreasing in $t_0$.
+\item If $d_T\le1$ for some $T$ then $d_t\to0$; otherwise $d_t>1$ for all $t$ and $\lim_t d_t\ge1$.
+\item The merge set $M(t_0)=\{d_0:\ d_t\to0\}$ equals $(0,\kappa(t_0))$ for some
+$\kappa(t_0)\in(1,\infty)$, and $d_0=\kappa(t_0)$ persists.
+\item (critical curve) $\kappa(t_0+k)=F_{k-1}\circ\dots\circ F_0(\kappa(t_0))\le\kappa(t_0)$ for $k\in\N$.
+\item $\kappa$ is nonincreasing on $(1,\infty)$.
+\item (certificate C1) If $1<\delta<d_0$ and, with $q:=t_0^{-\delta^2}$,
+\begin{equation}\label{eq:C1}
+\log d_0-\Big(2+\frac{q}{1-q^2}\Big)\frac{(t_0-1)^{1-\delta^2}}{\delta^2-1}\ \ge\ \log\delta ,
+\end{equation}
+then $d_t\ge\delta$ for all $t$. Hence $\kappa(t_0)\le\kappa_+(t_0):=\inf\{d_0:\ \eqref{eq:C1}\text{ holds for some }\delta\}$.
+The function $\kappa_+$ is nonincreasing and $\kappa_+(t_0)\to1$ as $t_0\to\infty$; in particular $\kappa(t_0)\downarrow1$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(a) $F_t'(d)=\frac{1-a}{1+a}+\frac{4d^2L_ta}{(1+a)^2}>0$, $F_t(0^+)=0$, $F_t(\infty)=\infty$.
+For fixed $d$, $a$ decreases as $s_t$ grows, and $\frac{1-a}{1+a}$ increases.
+
+(b) If $d_T\le1$ then $d_t\le1$ for $t\ge T$ by (a), so $a_t\ge s_t^{-1}$ and
+$d_{t+1}\le(1-a_t)d_t\le e^{-a_t}d_t$. Since $\sum_t s_t^{-1}=\infty$, $d_t\to0$. Otherwise the
+nonincreasing sequence stays above $1$.
+
+(c) By (b), $M(t_0)=\bigcup_T\{d_0:\ d_T(d_0)<1\}$ (if $d_T=1$ then $d_{T+1}<1$). Each
+$d_0\mapsto d_T(d_0)$ is continuous and increasing, so each set in the union is an interval $(0,c_T)$ and
+$M(t_0)=(0,\kappa)$ is open with $\kappa=\sup_Tc_T$. Since $d_1(1)<1$, we get $\kappa>1$; part (f)
+gives $\kappa<\infty$. As $\kappa\notin M(t_0)$, it persists.
+
+(d) The trajectory from $d_0$ at offset $t_0$, after $k$ steps, continues as the trajectory at
+offset $t_0+k$ started from $\Phi_k(d_0):=F_{k-1}\circ\dots\circ F_0(d_0)$. Hence
+$M(t_0+k)=\Phi_k(M(t_0))=(0,\Phi_k(\kappa(t_0)))$, using that $\Phi_k$ is an increasing bijection.
+
+(e) Let $t_0\le t_0'$ and let $d_t,d'_t$ be the trajectories from the same $d_0$ at offsets $t_0, t_0'$. By (a),
+$d'_{t+1}=F'_t(d'_t)\ge F'_t(d_t)\ge F_t(d_t)=d_{t+1}$. So $M(t_0')\subseteq M(t_0)$.
+
+(f) Suppose $d_u\ge\delta$ for all $u<t$. Then $a_u\le s_u^{-\delta^2}\le q$ and
+$-\log\frac{1-a}{1+a}=-\log(1-a^2)+2\log(1+a)\le \frac{a^2}{1-a^2}+2a\le a\big(2+\frac{q}{1-q^2}\big)$.
+Using $\sum_{u\ge0}(t_0+u)^{-\delta^2}\le\int_{t_0-1}^\infty x^{-\delta^2}dx=\frac{(t_0-1)^{1-\delta^2}}{\delta^2-1}$,
+we get $\log d_t\ge\log\delta$, and induction closes. The left side of \eqref{eq:C1} is
+nondecreasing in $t_0$, so $\kappa_+$ is nonincreasing. Given $\epsilon>0$, the pair $d_0=1+2\epsilon$,
+$\delta=1+\epsilon$ satisfies \eqref{eq:C1} for large $t_0$, since the middle term tends to $0$.
+\end{proof}
+
+\subsection{Chains: comparison}
+For the layered graph $G_{r,m}$ with layer-constant features (a property preserved by the
+dynamics), write $w_l=s_t^{-g_l^2}$, $w_0=w_r=0$, $D_l=1+w_{l-1}+w_l$, $A=1+w_{l-1}$, $B=1+w_{l+1}$. The
+gaps obey (main text, \texttt{core.py})
+\begin{equation}\label{eq:chain}
+g_l'=g_l\frac{AB-w_l^2}{D_lD_{l+1}}+\frac{w_{l+1}g_{l+1}}{D_{l+1}}+\frac{w_{l-1}g_{l-1}}{D_l}.
+\end{equation}
+
+\begin{lemma}[comparison; main text]\label{lem:comparison}
+All gaps stay nonnegative, and $g_l(t+1)\ge F_t(g_l(t))$ for every $l$ and $t$.
+\end{lemma}
+\begin{proof}
+All terms of \eqref{eq:chain} are nonnegative. It remains to show
+$(AB-w^2)(1+w)\ge(1-w)(A+w)(B+w)$ for $A,B\ge1$, $w\in[0,1]$. The difference equals
+$w\,[(A-1)B+A(B-1)+w(A+B-2)]\ge0$.
+\end{proof}
+
+\begin{lemma}[Theorem 2 of the main text]\label{lem:thm2}
+If $g_l(t_1)\ge\kappa(t_0+t_1)$ for some $t_1$, then $g_l(t)\ge1$ for all $t\ge t_1$; in particular the gap persists.
+\end{lemma}
+\begin{proof}
+By Lemma~\ref{lem:comparison} and the monotonicity of $F_t$, induction gives
+$g_l(t_1+k)\ge d_k$, where $d$ is the isolated trajectory at offset $t_0+t_1$ started from
+$\kappa(t_0+t_1)$. By Lemma~\ref{lem:two-layer}(b),(c), $d_k>1$ for all $k$.
+\end{proof}
+
+\subsection{Infinite flow and a universal dichotomy}
+We use the following theorem for products of stochastic matrices without a lower bound on the
+positive entries. (Hendrickx--Tsitsiklis~\cite{HT13}, Thm.~2, needs such a bound in discrete time
+and therefore does \emph{not} apply here, because attention weights decay to $0$.)
+
+\begin{lemma}[Touri--Nedi\'c~\cite{TN14}, Thm.~1, deterministic case; see also their Thms.~4 and~7]\label{lem:TN}
+Let $A(t)$, $t\ge0$, be row-stochastic $n\times n$ matrices, and suppose there are $\alpha,\gamma>0$ such that for all $t$:
+(i) \emph{strong aperiodicity} $A_{ii}(t)\ge\gamma$ for all $i$; (ii) \emph{balance}
+$\sum_{i\in S,j\notin S}A_{ij}(t)\ge\alpha\sum_{i\notin S,j\in S}A_{ij}(t)$ for every nonempty proper $S\subset[n]$.
+Then for every $x(0)\in\R^n$ the sequence $x(t)=A(t-1)\cdots A(0)x(0)$ converges. Moreover
+$\lim_tx_i(t)=\lim_tx_j(t)$ whenever $i,j$ lie in the same connected component of the
+\emph{infinite flow graph} $\{\{i,j\}:\ \sum_t(A_{ij}(t)+A_{ji}(t))=\infty\}$.
+\end{lemma}
+(Touri--Nedi\'c state the theorem for independent random chains; a deterministic chain is a special case.
+Their Theorem~4 requires ``weak aperiodicity'', which follows from (i) by keeping two terms of the column
+inner product: $\sum_lA_{li}A_{lj}\ge A_{ii}A_{ij}+A_{jj}A_{ji}\ge\gamma(A_{ij}+A_{ji})$.)
+
+\begin{proposition}[limits exist; universal $0$-or-$\sqrt c$ dichotomy]\label{prop:dichotomy}
+For every graph $G$ with self-loops, every $t_0>1$ and every $z(0)\in\R^{n\times p}$:
+\begin{enumerate}[label=(\roman*)]
+\item every $z_i(t)$ converges to some $z_i^\infty$;
+\item if $\sum_tw_{ij}(t)=\infty$ for an edge $\{i,j\}$, then $z_i^\infty=z_j^\infty$;
+\item for every edge, $\ell_{ij}:=\|z_i^\infty-z_j^\infty\|\in\{0\}\cup[1,\infty)$.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+Apply Lemma~\ref{lem:TN} to each coordinate with $A_{ij}(t)=\alpha_{ij}(t)$; these matrices depend on the
+trajectory, but for a fixed initial condition they form a fixed deterministic sequence.
+By \eqref{eq:pi}, $A_{ii}=1/\pi_i\ge1/\Nmax$. Since $w$ is symmetric,
+\[
+\sum_{i\in S,j\notin S}\frac{w_{ij}}{\pi_i}\ \ge\ \frac1{\Nmax}\sum_{i\in S,j\notin S}w_{ij}
+=\frac1{\Nmax}\sum_{i\notin S,j\in S}w_{ij}\ \ge\ \frac1{\Nmax}\sum_{i\notin S,j\in S}\frac{w_{ij}}{\pi_i},
+\]
+so (ii) of Lemma~\ref{lem:TN} holds with $\alpha=1/\Nmax$. Also $A_{ij}+A_{ji}\ge 2w_{ij}/\Nmax$, which gives (i) and (ii).
+For (iii): if $\ell_{ij}\in(0,1)$, pick $\ell'\in(\ell_{ij},1)$. Eventually $\|z_i-z_j\|<\ell'$, so
+$w_{ij}(t)\ge s_t^{-\ell'^2}$ and $\sum_tw_{ij}=\infty$, which contradicts (ii).
+\end{proof}
+
+\begin{remark}
+Proposition~\ref{prop:dichotomy}(iii) extends the first-order transition of Theorem~1(i),(iii) of the
+main text (the jump of $d_\infty$ from $0$ to $\sqrt c$) to \emph{every edge of every graph}, with
+vector features. Limiting edge lengths in $(0,\sqrt c)$ are impossible.
+\end{remark}
+
+%=====================================================================
+\section{Task A: planted partitions at the $\sqrt c$ scale}
+%=====================================================================
+
+\paragraph{Setting.} Let $V=B_1\sqcup\dots\sqcup B_K$ be a planted partition. Blocks $k\ne l$ are
+\emph{adjacent} ($k\sim l$) if some edge joins them. For $i\in B_k$, let $e_i:=|N(i)\setminus B_k|$ be the
+cross-degree, and let $e_{\max}:=\max_ie_i$. Let $C_k\subset\R^p$ be convex sets with
+$\{z_i(0): i\in B_k\}\subseteq C_k$; the natural choices are $C_k=\conv\{z_i(0):i\in B_k\}$ and
+$C_k=\bar B(\mu_k,r_k)$. Put $D_k:=\diam C_k$. Write $\bar B(\eta)$ for the closed ball of radius $\eta$ at the
+origin, and $C+\bar B(\eta)$ for the Minkowski sum.
+
+\begin{theorem}[planted partition at the $\sqrt c$ scale]\label{thm:A}
+Let $t_0\ge2$, assume each induced subgraph $G[B_k]$ is connected, and let $\eta\ge0$, $\delta>1$ satisfy
+\begin{align}
+&\text{(A1, mixing)} && D_k+2\eta\le1\quad\text{for all }k, \label{A1}\\
+&\text{(A2, separation)} && \dist(C_k,C_l)\ge\delta+2\eta\quad\text{for all }k\sim l, \label{A2}\\
+&\text{(A3, drift budget)} && e_{\max}\,\delta\,\frac{(t_0-1)^{1-\delta^2}}{\delta^2-1}\le\eta. \label{A3}
+\end{align}
+Then:
+\begin{enumerate}[label=(\alph*)]
+\item $z_i(t)\in C_k+\bar B(\eta)$ for all $t\ge0$ and $i\in B_k$;
+\item each block converges to a single point: $z_i(t)\to z_k^\infty\in C_k+\bar B(\eta)$ for all $i\in B_k$;
+\item $\|z_k^\infty-z_l^\infty\|\ge\delta>1$ for all $k\sim l$;
+\item the limiting partition, i.e.\ the connected components of the graph of edges of zero limiting
+length, is exactly $\{B_1,\dots,B_K\}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Put $\varepsilon_t:=e_{\max}\,\delta\,s_t^{-\delta^2}$ and $\eta_t:=\sum_{u<t}\varepsilon_u$. By the
+integral comparison in Lemma~\ref{lem:two-layer}(f) and \eqref{A3}, $\eta_t\le\eta$ for all $t$. We prove by
+induction the claim $H(t)$: $z_i(t)\in C_k+\bar B(\eta_t)$ for all $k$ and $i\in B_k$. $H(0)$ holds.
+
+Assume $H(t)$. \emph{Cross distances.} If $i\in B_k$, $j\in B_l$ and $\{i,j\}\in E$ with $k\ne l$, then
+$k\sim l$ and $\|z_i(t)-z_j(t)\|\ge\dist(C_k,C_l)-2\eta_t\ge\delta$ by \eqref{A2}.
+\emph{Decomposition.} For $i\in B_k$ write $z_i(t+1)=y_i+\xi_i$ with
+\[
+y_i:=z_i+\sum_{j\in N(i)\cap B_k}\alpha_{ij}(z_j-z_i),\qquad
+\xi_i:=\sum_{j\in N(i)\setminus B_k}\alpha_{ij}(z_j-z_i)
+\]
+(all at time $t$). The point $y_i$ is a convex combination of $\{z_j(t):j\in B_k\}$: the coefficient of $z_i$
+is $\alpha_{ii}+\sum_{j\notin B_k}\alpha_{ij}\ge0$, and the coefficients sum to $1$. Hence
+$y_i\in C_k+\bar B(\eta_t)$, a convex set. For the cross term, $\pi_i\ge1$ and $d_{ij}:=\|z_i-z_j\|\ge\delta$ give
+\[
+\|\xi_i\|\le\sum_{j\in N(i)\setminus B_k}d_{ij}\,e^{-d_{ij}^2L_t}\le e_i\,\delta\,e^{-\delta^2L_t}\le\varepsilon_t,
+\]
+because $x\mapsto xe^{-x^2L}$ is decreasing on $[1/\sqrt{2L},\infty)$, and $\delta>1\ge1/\sqrt{2\log2}$.
+So $z_i(t+1)\in C_k+\bar B(\eta_t+\varepsilon_t)$, which is $H(t+1)$. This proves (a).
+
+(b) For a within-block edge $\{i,j\}\subseteq B_k$, (a) and \eqref{A1} give
+$\|z_i(t)-z_j(t)\|\le D_k+2\eta\le1$. Hence $w_{ij}(t)\ge s_t^{-1}$ and $\sum_tw_{ij}(t)=\infty$.
+By Proposition~\ref{prop:dichotomy}(ii) the endpoints share a limit. Since $G[B_k]$ is connected, all of $B_k$
+shares one limit $z_k^\infty$, and it lies in the closed set $C_k+\bar B(\eta)$.
+
+(c) $\|z_k^\infty-z_l^\infty\|\ge\dist(C_k,C_l)-2\eta\ge\delta$.
+
+(d) follows from (b) and (c).
+\end{proof}
+
+\begin{corollary}[ball form]\label{cor:ball}
+Let $\mu_k$ be any centres and $r_k:=\max_{i\in B_k}\|z_i(0)-\mu_k\|$. The conclusions of
+Theorem~\ref{thm:A} hold if, for some $\eta\ge0$ and $\delta>1$ satisfying \eqref{A3},
+\[
+r_k\le\tfrac12-\eta\quad\text{and}\quad\|\mu_k-\mu_l\|\ge r_k+r_l+\delta+2\eta\quad(k\sim l).
+\]
+In physical units: $r\le\sqrt c\,(\tfrac12-\eta)$ and $\Delta\ge 2r+(\delta+2\eta)\sqrt c$.
+The old sufficient condition (\texttt{planted\_certificate}) required $r\le\sqrt c/(4\sqrt\rho)$
+with $\rho$ the hop radius of the blocks, and $\Delta\ge4r+\dots$.
+\end{corollary}
+\begin{proof}
+Take $C_k=\bar B(\mu_k,r_k)$, so $D_k=2r_k$ and $\dist(C_k,C_l)\ge\|\mu_k-\mu_l\|-r_k-r_l$.
+\end{proof}
+
+\begin{corollary}[the separation threshold is $\kappa(t_0)$ to leading order]\label{cor:asym}
+Fix $e_{\max}\ge1$ and $\theta\in(0,1]$, and let $\ell:=\log(t_0-1)>e$. Define
+\[
+\Gamma(t_0):=\sqrt{1+\tfrac{2\log\ell}{\ell}}\,\Big(1+\frac{e_{\max}}{\ell\log\ell}\Big).
+\]
+If $D_k\le1-\theta$ for all $k$, $e_{\max}\sqrt{1+2\log\ell/\ell}\le\theta\,\ell\log\ell$, and
+$\dist(C_k,C_l)\ge\Gamma(t_0)$ for all $k\sim l$, then the conclusions of Theorem~\ref{thm:A} hold. Moreover
+$\Gamma(t_0)=1+(1+o(1))\frac{\log\log t_0}{\log t_0}$.
+\end{corollary}
+\begin{proof}
+Let $\gamma:=2\log\ell/\ell\in(0,1)$, $\delta:=\sqrt{1+\gamma}$, and $\eta:=e_{\max}\delta/(2\ell\log\ell)$. Then
+$(t_0-1)^{1-\delta^2}=e^{-\gamma\ell}=\ell^{-2}$, so \eqref{A3} holds with equality. Condition \eqref{A1} holds
+because $2\eta\le\theta$, and \eqref{A2} holds because $\delta+2\eta=\Gamma(t_0)$. Finally
+$\sqrt{1+\gamma}\le1+\log\ell/\ell$, and $\ell\sim\log t_0$.
+\end{proof}
+
+\begin{remark}[sharpness of the separation term]
+By Theorem~1(v) of the main text, $\kappa(t_0;\rho_A,\rho_B)=1+(1+o(1))\log\log t_0/\log t_0$ for
+every topology, so $\Gamma(t_0)-\kappa(t_0;\rho)=o(\log\log t_0/\log t_0)$. Conversely, for
+block-regular two-block graphs with collapsed blocks ($D_k=0$), separation $\ge\kappa(t_0;\rho_A,\rho_B)$ is
+\emph{necessary} by the two-block law. Hence \eqref{A2} is sharp to leading order. The cut ratio $\rho$ enters
+$\kappa$ only at second order, while our condition uses $e_{\max}$ at second order; see Remark~\ref{rem:twoscale}.
+\end{remark}
+
+\begin{proposition}[the mixing constant in \eqref{A1} is sharp]\label{prop:sharpA}
+For every $D>1$ and $t_0\ge2$ there are a graph with a single block $B$ such that $G[B]$ is connected, and features with
+$\diam\{z_i(0)\}=D$, for which the limit is \emph{not} a consensus: the block splits into two clusters at
+distance $>1$. Consequently no condition of the form $\max_kD_k\le f(t_0)$ with $f(t_0)>1$ (equivalently
+$r_k\le f(t_0)/2$) can guarantee the planted partition, whatever the graph.
+\end{proposition}
+\begin{proof}
+Take two cliques $Q_1,Q_2$ of size $k$, joined by a perfect matching, with $z\equiv0$ on $Q_1$ and $z\equiv D$ on
+$Q_2$ (scalars). Each node sees $k$ nodes of its own clique (including itself) at distance $0$ and one node at
+distance $d$. The features stay clique-constant, and the gap obeys $d'=d\,\frac{k-a}{k+a}\ge d(1-2a/k)$ with
+$a=s_t^{-d^2}$. Let $\delta:=(1+D)/2$. If $d_u\ge\delta$ for all $u<t$, then
+$d_t\ge D\big(1-\frac2k\frac{(t_0-1)^{1-\delta^2}}{\delta^2-1}\big)\ge\delta$, provided
+$k\ge\frac{2D(t_0-1)^{1-\delta^2}}{(\delta^2-1)(D-\delta)}$. By induction the gap stays $\ge\delta>1$.
+\end{proof}
+
+\begin{remark}
+Numerically, at the E4 offset $t_0=602$: with $k=100$ the block of diameter $D=1.1$ ends at gap
+$1.071$; with $k=1000$ even $D=1.05$ persists (gap $1.044$). This uses \texttt{core.two\_block\_final}
+with $\rho_A=\rho_B=1/k$.
+\end{remark}
+
+\begin{remark}[where the two scales are, and what is not captured]\label{rem:twoscale}
+The proof has two time scales. Within blocks, the weights are non-summable ($\ge s_t^{-1}$), and the
+blocks collapse over polynomially long times. Across blocks, the weights are summable ($\le s_t^{-\delta^2}$),
+and the blocks drift by at most $\eta$ \emph{in total}. The invariant convex sets $C_k+\bar B(\eta)$ handle
+both at once, and the infinite-flow theorem (Lemma~\ref{lem:TN}) replaces the path-product Dobrushin
+argument, which is what produced the factor $1/\sqrt\rho$. After a block collapses, the drift rate of node $i$
+improves from $e_i$ to $\rho_i=e_i/|N[i]\cap B_k|$, because $\pi_i\to|N[i]\cap B_k|$. Exploiting this
+(replacing $e_{\max}$ by the cut ratio in \eqref{A3}) needs an \emph{explicit} within-block collapse time.
+Lemma~\ref{lem:TN} is qualitative, and quantitative versions for general graphs carry constants exponential in
+$|B_k|$. This second-order improvement is therefore not proved here.
+\end{remark}
+
+\subsection{Check against experiment E4}
+E4: $K=4$ blocks of $150$ nodes, SBM $p_{\rm in}=0.2$, $p_{\rm out}\in\{0,\dots,0.05\}$, $p=8$, means at
+mutual distance $\Delta=3$, isotropic noise $\sigma$, $t_0=n+2=602$, $\kappa(602)\approx1.30$, 25 runs per $\sigma$.
+We regenerate the exact initial conditions (\texttt{theory/check\_E4.py}) and test
+\eqref{A1}--\eqref{A3}. The hull form uses $C_k=\conv(\text{block }k)$, with $\dist$ lower-bounded by projection
+onto the direction joining the block means; the ball form is Corollary~\ref{cor:ball} with $\mu_k$ the block
+means. We scan $\eta\in(0,(1-D)/2]$ and take the smallest admissible $\delta$.
+
+\begin{center}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+$\sigma$ & $\max_kD_k$ (runs) & $r$ (runs) & old & ball & hull & survives \\
+\midrule
+0.00 & 0 & 0 & 5 & 25 & 25 & 25\\
+0.03 & [0.228, 0.292] & [0.142, 0.184] & 23 & 25 & 25 & 25\\
+0.06 & [0.464, 0.553] & [0.277, 0.335] & 0 & 25 & 25 & 25\\
+0.10 & [0.788, 0.937] & [0.476, 0.578] & 0 & 11 & \textbf{25} & 25\\
+0.15 & [1.155, 1.384] & [0.714, 0.846] & 0 & 0 & 0 & 25\\
+0.20 & [1.601, 2.051] & [0.952, 1.268] & 0 & 0 & 0 & 25\\
+0.25 & [1.925, 2.329] & [1.196, 1.410] & 0 & 0 & 0 & 25\\
+0.30 & [2.401, 3.076] & [1.355, 1.901] & 0 & 0 & 0 & 1\\
+\bottomrule
+\end{tabular}
+\end{center}
+At $\sigma=0.1$ the binding condition is \eqref{A1} ($D\le0.937$); separation has a large margin
+(hull distance $\ge2.35$ against the required $\delta+2\eta\le1.74$, with $e_{\max}\le40$). The condition is
+never violated: every certified run indeed keeps the planted partition. For $\sigma\ge0.15$
+\emph{every} run has $\max_kD_k>1$. By Proposition~\ref{prop:sharpA}, no theorem that sees only block diameters,
+connectivity, degrees and separations can certify these runs. Survival up to $\sigma=0.25$ is an effect of
+dense blocks plus high-dimensional concentration (see the conjecture in \texttt{SUMMARY.md}).
+
+%=====================================================================
+\section{Task B: the three-layer chain}
+%=====================================================================
+
+Three layers with layer features $x_1\le x_2\le x_3$ and gaps $u=x_2-x_1$, $v=x_3-x_2$. Let $w_1=s_t^{-u^2}$,
+$w_2=s_t^{-v^2}$, $D_1=1+w_1$, $D_2=1+w_1+w_2$, $D_3=1+w_2$. Then
+\[
+x_1'=\frac{x_1+w_1x_2}{D_1},\quad x_2'=\frac{w_1x_1+x_2+w_2x_3}{D_2},\quad x_3'=\frac{w_2x_2+x_3}{D_3},
+\]
+which is \eqref{eq:chain} with $r=3$. We write $D:=u+v$, $h:=u+v/2$ (distance from $x_1$ to the midpoint of
+$x_2,x_3$) and $\tilde h:=v+u/2$. Gap~$1$ \emph{persists} if $\liminf u>0$ and \emph{merges} if $u\to0$. By
+Proposition~\ref{prop:dichotomy} applied to $G_{3,m}$, the limits $u_\infty,v_\infty$ exist and lie in
+$\{0\}\cup[1,\infty)$.
+
+\begin{lemma}[identities]\label{lem:id}
+With $F_t$ as in Lemma~\ref{lem:two-layer} (applied to $u$ with $a=w_1$, or to $v$ with $a=w_2$):
+\begin{align}
+u'&=F_t(u)+\frac{w_2}{D_2}\Big(v+\frac{w_1u}{D_1}\Big), &
+v'&=F_t(v)+\frac{w_1}{D_2}\Big(u+\frac{w_2v}{D_3}\Big),\label{eq:I1}\\
+h'&=h-w_1\Big[u\Big(\frac1{2D_2}+\frac1{D_1}\Big)+\frac{w_2v}{2D_2D_3}\Big], &
+\tilde h'&=\tilde h-w_2\Big[v\Big(\frac1{2D_2}+\frac1{D_3}\Big)+\frac{w_1u}{2D_1D_2}\Big],\label{eq:I2}\\
+D'&=D-\frac{w_1u}{D_1}-\frac{w_2v}{D_3}. \label{eq:I3}
+\end{align}
+Consequently $h,\tilde h,D$ are nonincreasing, $u\le h$, $v\le\tilde h$, $u,v\le D\le D_0$, and
+\begin{align}
+&(1-2w_1)u\ \le\ u'\ \le\ (1-w_1)u+w_2(u+v),\qquad (1-2w_2)v\ \le\ v'\ \le\ (1-w_2)v+w_1(u+v),\label{eq:bounds}\\
+&0\le h-h'\le\tfrac32\,w_1(u+v). \label{eq:hloss}
+\end{align}
+\end{lemma}
+\begin{proof}
+Put $x_1=0$, $x_2=u$, $x_3=u+v$. Then $x_1'=w_1u/D_1$ and $x_2'=(u(1+w_2)+w_2v)/D_2$, so
+$u'=u\frac{(1+w_2)(1+w_1)-w_1D_2}{D_1D_2}+\frac{w_2v}{D_2}=u\frac{1+w_2-w_1^2}{D_1D_2}+\frac{w_2v}{D_2}$. Since
+$\frac{1+w_2-w_1^2}{D_1D_2}-\frac{1-w_1}{1+w_1}=\frac{w_1w_2}{D_1D_2}$, this is the first identity in \eqref{eq:I1}; the
+second follows by the mirror symmetry $x\mapsto-x$, $1\leftrightarrow3$. With $\Delta x_1=w_1u/D_1$,
+$\Delta x_2=(w_2v-w_1u)/D_2$ and $\Delta x_3=-w_2v/D_3$, we get
+$h'-h=\frac{\Delta x_2+\Delta x_3}2-\Delta x_1$. Using $\frac1{D_2}-\frac1{D_3}=-\frac{w_1}{D_2D_3}$ gives
+\eqref{eq:I2}, and the mirror gives the $\tilde h$ identity. \eqref{eq:I3} is $\Delta x_3-\Delta x_1$.
+The bounds use $1-2a\le\frac{1-a}{1+a}\le1-a$, $D_i\ge1$, $w_i\le1$, and, for \eqref{eq:hloss},
+$\frac1{2D_2}\le\frac12$, $\frac1{D_1}\le1$, $\frac{w_2}{D_2D_3}\le\frac{w_2}{(1+w_2)^2}\le\frac14$.
+\end{proof}
+(These identities were checked numerically on $2\cdot10^5$ random points against \texttt{core.chain\_step};
+maximal error $2.7\cdot10^{-15}$. See \texttt{theory/check\_identities.py}.)
+
+\subsection{An exact persistence criterion}
+
+\begin{proposition}[exact criterion]\label{prop:exact}
+Let $t_0>1$ and $u_0,v_0\ge0$.
+\begin{enumerate}[label=(\alph*)]
+\item If $u(t_1)+v(t_1)/2<1$ for some $t_1\ge0$, then gap~$1$ merges.
+\item If $u_0+v_0<2$, then gap~$1$ persists $\iff$ $h(t)\ge1$ for all $t$. In that case $u_\infty=h_\infty\ge1$
+and $v_\infty=0$: layers $2,3$ merge, and the merged block stays at distance $h_\infty$ from layer~$1$.
+\item For every $t_0$: gap~$1$ merges whenever $u_0+v_0/2<1$. Hence the rescue boundary obeys
+$u^*(v_0)\ge1-v_0/2$, i.e.\ $\ge\sqrt c-v_0/2$ in physical units.
+\item (symmetric line) If $u_0=v_0<1$, then both gaps merge.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+(a) $u_\infty\le h_\infty\le h(t_1)<1$, so $u_\infty=0$ by the dichotomy.
+(b) ($\Leftarrow$) If $u_\infty=0$ then $h_\infty=v_\infty/2\le D_\infty/2\le D_0/2<1$, which is a contradiction;
+so $u_\infty\ge1$. If moreover $v_\infty>0$ then $v_\infty\ge1$, so $D_\infty\ge2>D_0$, contradicting
+the monotonicity of $D$. Hence $v_\infty=0$ and $u_\infty=h_\infty$. ($\Rightarrow$) The same argument gives
+$v_\infty=0$, so $h(t)\ge h_\infty=u_\infty\ge1$.
+(c) is (a) at $t_1=0$.
+(d) The dynamics commute with the mirror, so $u(t)=v(t)$ for all $t$. If gap~$1$ persisted, (b) would
+force $v_\infty=0\ne u_\infty$.
+\end{proof}
+
+\subsection{Rescue for every $t_0$ and every $v_0$, in one step}
+
+\begin{theorem}[one-step rescue]\label{thm:B1}
+Let $t_0\ge2$, $L=\log t_0$, $v_0>0$. Put $w_*:=t_0^{-v_0^2}$, $p_0:=\frac{w_*v_0}{1+w_*}$, $d_-:=1-p_0$,
+\[
+p:=\frac{w_*v_0}{1+t_0^{-d_-^2}+w_*},\qquad m:=\max\{d_-^2,\tfrac3{2L}\},\qquad
+M:=1+(4mL-2)_+\,t_0^{-m},\qquad R:=p/M .
+\]
+Then $R>0$, and gap~$1$ persists for \emph{every} $u_0\ge\kappa(t_0)-R$. In particular, for every $t_0\ge2$
+and every $v_0>0$ the isolated rule ``gap persists iff $u_0\ge\kappa(t_0)$'' is wrong on the nonempty
+interval $[\kappa(t_0)-R,\kappa(t_0))$: the neighbour pushes $u$ across the critical curve in one step.
+\end{theorem}
+\begin{proof}
+First, $p_0\le\sup_vve^{-v^2L}=(2eL)^{-1/2}<1$ for $L\ge\log2$, so $d_->0$, and $R\le p\le p_0<\kappa(t_0)-d_-$
+because $\kappa>1$. For $u_0\ge\kappa(t_0)$ use Lemma~\ref{lem:thm2}. Now let
+$u_0\in[\kappa-R,\kappa)$; then $u_0>d_-$. By \eqref{eq:I1} at $t=0$,
+\[
+u(1)\ \ge\ F_0(u_0)+\frac{w_*v_0}{1+t_0^{-u_0^2}+w_*}\ \ge\ F_0(u_0)+p .
+\]
+By the mean value theorem, $F_0(\kappa)-F_0(u_0)\le(\kappa-u_0)\sup_{d\ge d_-}F_0'(d)$, and
+$F_0'(d)-1=\frac{a(4d^2L-2-2a)}{(1+a)^2}\le G(d^2)$ with $G(m'):=(4m'L-2)_+e^{-m'L}$. $G$ vanishes on
+$[0,\frac1{2L}]$, increases on $[\frac1{2L},\frac3{2L}]$ and decreases afterwards, so
+$\sup_{m'\ge d_-^2}G(m')=G(m)$. Hence $F_0(\kappa)-F_0(u_0)\le RM=p$, and
+$u(1)\ge F_0(\kappa(t_0))=\kappa(t_0+1)$ by Lemma~\ref{lem:two-layer}(d). Persistence follows from Lemma~\ref{lem:thm2}.
+\end{proof}
+
+\begin{remark}[size of the one-step rescue]
+As $t_0\to\infty$ with $v_0=x/\sqrt L$: $p_0\to0$, $M\to1$, and
+$\sup_{v_0}R=(c_1+o(1))/\sqrt{\log t_0}$ with $c_1=\max_xxe^{-x^2}/(1+e^{-x^2})=0.2779$, attained at
+$x=0.860$. Explicit values (\texttt{theory/constants.py}; $\kappa_{\rm hi}$ is the validated enclosure from E1, and
+$\kappa_+$ for $t_0=10^{10}$):
+\begin{center}
+\begin{tabular}{rcccc}
+\toprule
+$t_0$ & optimal $v_0$ & $\max R$ & $\max R/\kappa_{\rm hi}$ & $0.278/\sqrt{\log t_0}$\\
+\midrule
+5 & 0.649 & 0.0925 & 0.055 & 0.219\\
+11 & 0.541 & 0.0839 & 0.055 & 0.179\\
+100 & 0.398 & 0.0930 & 0.068 & 0.130\\
+$10^3$ & 0.327 & 0.0976 & 0.075 & 0.106\\
+$10^6$ & 0.231 & 0.0747 & 0.062 & 0.075\\
+$10^{10}$ & 0.179 & 0.0579 & 0.051 & 0.058\\
+\bottomrule
+\end{tabular}
+\end{center}
+The one-step rescue is qualitative (5--7.5\% of $\kappa$). The macroscopic rescue (25--33\%) needs
+$\gtrsim t_0^{v_0^2}$ steps, which is the content of Theorem~\ref{thm:B2}.
+\end{remark}
+
+\subsection{The scaling limit of the rescue boundary}
+
+Throughout, $\kappa=\kappa(t_0)$, $u_0=y\kappa$, $v_0=x\kappa$, and
+\[
+\varphi(x):=\max\{x,\ 1-x/2\}\quad(0<x<1),\qquad\varphi(x):=1\quad(x>1).
+\]
+The three window lemmas below are stated in absolute units, for $t_0\ge2$ and an integer horizon
+$T\le t_0$, so that $t_0\le s_t\le2t_0$ for $t\le T$.
+
+\begin{lemma}[persistence window]\label{lem:winP}
+Let $0<b<a$, $\epsilon:=Tt_0^{-a^2}$ and $E:=\exp(-T(2t_0)^{-b^2})$. If $u_0\ge a+2D_0\epsilon$ and
+$v_0+D_0\epsilon\le b$, then
+\[
+u(T)\ \ge\ u_0+\tfrac{v_0}2-2D_0\epsilon-\tfrac{v_0}2E .
+\]
+Consequently gap~$1$ persists if $u_0+\frac{v_0}2-2D_0\epsilon-\frac{v_0}2E\ge\kappa(t_0)$.
+\end{lemma}
+\begin{proof}
+By induction on $t\le T$: $u(t)\ge u_0-2D_0t\,t_0^{-a^2}\ge a$ and $v(t)\le v_0+D_0t\,t_0^{-a^2}\le b$. Indeed, if
+$u(t)\ge a$ then $w_1(t)\le t_0^{-a^2}$, and \eqref{eq:bounds} with $u,v\le D_0$ gives
+$u(t+1)\ge u(t)-2D_0t_0^{-a^2}$ and $v(t+1)\le v(t)+D_0t_0^{-a^2}$. Then $w_2(t)\ge(2t_0)^{-b^2}$, so
+$v(t+1)\le(1-(2t_0)^{-b^2})v(t)+D_0t_0^{-a^2}$ and $v(T)\le v_0E+D_0\epsilon$. By \eqref{eq:hloss},
+$h(T)\ge h_0-\frac32D_0\epsilon$. Hence $u(T)=h(T)-v(T)/2$ satisfies the bound. Finally
+$\kappa(t_0+T)\le\kappa(t_0)$ (Lemma~\ref{lem:two-layer}(d)), and Lemma~\ref{lem:thm2} applies.
+\end{proof}
+
+\begin{lemma}[race window]\label{lem:winR}
+Let $0<\bar u<v_{\rm lo}$, $\epsilon':=Tt_0^{-v_{\rm lo}^2}$ and $E':=\exp(-T(2t_0)^{-\bar u^2})$. If
+$u_0+D_0\epsilon'\le\bar u$ and $v_0(1-2\epsilon')\ge v_{\rm lo}$, then $u(T)\le u_0E'+D_0\epsilon'$. Hence gap~$1$ merges if
+\[
+u_0E'+D_0\epsilon'+\tfrac{v_0}2+\tfrac{u_0}4<1 .
+\]
+\end{lemma}
+\begin{proof}
+By induction on $t\le T$: $v(t)\ge v_0(1-2t_0^{-v_{\rm lo}^2})^t\ge v_0(1-2\epsilon')\ge v_{\rm lo}$, by the lower bound in
+\eqref{eq:bounds} with $w_2\le t_0^{-v_{\rm lo}^2}$. Also $u(t)\le u_0+D_0t\,t_0^{-v_{\rm lo}^2}\le\bar u$, by the
+upper bound in \eqref{eq:bounds} with $w_2(u+v)\le D_0t_0^{-v_{\rm lo}^2}$. Then $w_1(t)\ge(2t_0)^{-\bar u^2}$, so
+$u(t+1)\le(1-(2t_0)^{-\bar u^2})u(t)+D_0t_0^{-v_{\rm lo}^2}$, which gives $u(T)\le u_0E'+D_0\epsilon'$. Moreover
+$v(T)\le\tilde h(T)\le\tilde h_0=v_0+u_0/2$. Hence $h(T)=u(T)+v(T)/2<1$, and Proposition~\ref{prop:exact}(a) applies.
+\end{proof}
+
+\begin{lemma}[persistent neighbour]\label{lem:winV}
+Let $v_{\rm lo}>1$ and $P_\infty:=(t_0-1)^{1-v_{\rm lo}^2}/(v_{\rm lo}^2-1)$. If $v_0(1-2P_\infty)\ge v_{\rm lo}$ and
+$u_0+(v_{\rm lo}+1)P_\infty<1$, then gap~$1$ merges (and gap~$2$ persists).
+\end{lemma}
+\begin{proof}
+We show by induction on $t$ that $v(t)\ge v_{\rm lo}$ and $u(t)\le u_0+(v_{\rm lo}+1)\sum_{u'<t}s_{u'}^{-v_{\rm lo}^2}<1$.
+First, $v(t)\ge v_0\prod_{u'<t}(1-2s_{u'}^{-v_{\rm lo}^2})\ge v_0(1-2P_\infty)$. Second, the push in \eqref{eq:I1} is at most
+$w_2v+w_2u\le v_{\rm lo}s_t^{-v_{\rm lo}^2}+s_t^{-v_{\rm lo}^2}$, because $x\mapsto xs^{-x^2}$ is decreasing for
+$x\ge1/\sqrt{2\log s}$ and $u<1$; and $F_t(u)\le u$. Hence $u_\infty\le u_0+(v_{\rm lo}+1)P_\infty<1$, so $u_\infty=0$.
+\end{proof}
+
+\begin{theorem}[scaling limit of the rescue boundary]\label{thm:B2}
+Let $x\in(0,1)\cup(1,\infty)$, $y>0$, $y\ne\varphi(x)$. There is an explicit $T^*(x,y)$ such that for all
+$t_0\ge T^*$ the chain started from $(u_0,v_0)=(y\kappa(t_0),x\kappa(t_0))$ satisfies: gap~$1$ persists if
+$y>\varphi(x)$, and merges if $y<\varphi(x)$. Explicitly, with $\bar\kappa:=\kappa_+(T^*)$ (Lemma~\ref{lem:two-layer}(f);
+any certified upper bound for $\kappa(T^*)$ may be used), $T=\lceil t_0^\beta\rceil$, $e:=2t_0^{\beta-a^2}$ etc.,
+the following conditions at $t_0=T^*$ suffice. All of them get weaker as $t_0$ grows, because $\bar\kappa$ bounds $\kappa(t_0)$ for all
+$t_0\ge T^*$ by Lemma~\ref{lem:two-layer}(e).
+\begin{enumerate}[label=(\roman*)]
+\item ($x<1$, $\varphi(x)<y<1$; persistence) pick $x\bar\kappa<b<\sqrt\beta<a<y$, $\beta<1$, with $t_0^\beta+1\le t_0$ and
+\begin{gather*}
+e=2t_0^{\beta-a^2},\qquad y-2(x+1)\bar\kappa\,e\ge a,\qquad x\bar\kappa+(x+1)\bar\kappa\,e\le b,\\
+y+\tfrac x2-1\ge2(x+1)e+\tfrac x2\exp\!\big(-2^{-b^2}t_0^{\beta-b^2}\big).
+\end{gather*}
+\item ($y<1-x/2$, $x<2$; merge) $\bar\kappa\,(y+x/2)<1$.
+\item ($2/3<x<1$, $1-x/2\le y<x$; merge) pick $y\bar\kappa<\bar u<\sqrt\beta<v_{\rm lo}<x$, $t_0^\beta+1\le t_0$, $e'=2t_0^{\beta-v_{\rm lo}^2}$, and
+\begin{gather*}
+y\bar\kappa+(x+y)\bar\kappa\,e'\le\bar u,\qquad x(1-2e')\ge v_{\rm lo},\\
+y\bar\kappa\,e^{-2^{-\bar u^2}t_0^{\beta-\bar u^2}}+(x+y)\bar\kappa\,e'+\bar\kappa\big(\tfrac x2+\tfrac y4\big)<1 .
+\end{gather*}
+\item ($x>1$, $y<1$; merge) pick $1<v_{\rm lo}<x$ with $x(1-2P_\infty)\ge v_{\rm lo}$ and $y\bar\kappa+(v_{\rm lo}+1)P_\infty<1$.
+\item ($y\ge1$) persistence for every $t_0$ (Lemma~\ref{lem:thm2}).
+\end{enumerate}
+Each condition holds for all large $t_0$ because $\bar\kappa\to1$ (Lemma~\ref{lem:two-layer}(f)),
+$t_0^{\beta-a^2},t_0^{\beta-v_{\rm lo}^2},P_\infty\to0$, and $t_0^{\beta-b^2},t_0^{\beta-\bar u^2}\to\infty$; and the
+regions (i)--(v) cover all $(x,y)$ with $x\ne1$, $y\ne\varphi(x)$.
+\end{theorem}
+
+\begin{proof}
+(i) Apply Lemma~\ref{lem:winP} with these $a,b,T$, using $\kappa\ge1$ (so $u_0\ge y$), $\kappa\le\bar\kappa$,
+$D_0=(x+y)\kappa\le(x+1)\bar\kappa$, $t_0^\beta\le T\le2t_0^\beta$ (so $\epsilon\le e$ and
+$T(2t_0)^{-b^2}\ge2^{-b^2}t_0^{\beta-b^2}$). The final inequality of Lemma~\ref{lem:winP}, divided by $\kappa$,
+reads $y+x/2-1\ge2(x+y)\epsilon+\frac x2E$. Such $a,b$ exist since $y>x$, and the left side is positive since
+$y>1-x/2$.
+(ii) $u_0+v_0/2=\kappa(y+x/2)<1$; use Proposition~\ref{prop:exact}(c).
+(iii) Lemma~\ref{lem:winR} with $D_0\le(x+y)\bar\kappa$, $v_0\ge x$, $u_0\le y\bar\kappa$, and
+$v_0/2+u_0/4\le\bar\kappa(x/2+y/4)$. As $t_0\to\infty$ the left side of the last condition tends to
+$x/2+y/4<3/4$.
+(iv) Lemma~\ref{lem:winV} with $v_0\ge x$, $u_0\le y\bar\kappa$.
+Coverage: for $x\le2/3$, $\varphi=1-x/2$ and $y<\varphi$ is (ii); for $2/3<x<1$, $\varphi=x$ and $y<\varphi$ is
+(ii)$\cup$(iii); for $x>1$, $\varphi=1$ and $y<1$ is (iv); and $y>\varphi$ is (i) or (v).
+\end{proof}
+
+\begin{corollary}[normalised boundary; the minimum $2/3$]\label{cor:B2}
+Let $U_+(v_0;t_0):=\inf\{u:\ \text{gap 1 persists from }(u',v_0)\ \forall u'\ge u\}$ and
+$U_-(v_0;t_0):=\sup\{u:\ \text{gap 1 merges from }(u',v_0)\ \forall u'\le u\}$, so that $U_-\le U_+$. Then for every
+$x\in(0,1)\cup(1,\infty)$,
+\[
+\lim_{t_0\to\infty}\frac{U_\pm(x\kappa(t_0);t_0)}{\kappa(t_0)}=\varphi(x),\qquad\text{and}\qquad
+\lim_{t_0\to\infty}\ \inf_{v_0>0}\frac{U_\pm(v_0;t_0)}{\kappa(t_0)}=\frac23=\varphi\big(\tfrac23\big).
+\]
+\end{corollary}
+\begin{proof}
+Pointwise: all conditions in Theorem~\ref{thm:B2} are monotone in $y$ within each region (larger $y$ only helps
+(i), smaller $y$ only helps (ii)--(iv); in (i) use $x+1\ge x+y'$). So for each $\epsilon>0$, eventually gap~$1$
+persists for all $y'\ge\varphi(x)+\epsilon$ and merges for all $y'\le\varphi(x)-\epsilon$.
+Minimum: $\limsup\inf_{v_0}U_+/\kappa\le\lim U_+(\frac23\kappa)/\kappa=\frac23$. For the lower bound, fix
+$\epsilon\in(0,\frac16)$ and $y\le\frac23-\epsilon$; we show merging uniformly in $x>0$ for large $t_0$.
+If $x\le\frac23+\epsilon$, then $y+x/2\le1-\epsilon/2$, and (ii) holds once $\kappa_+(t_0)<1/(1-\epsilon/2)$.
+If $\frac23+\epsilon\le x\le\frac43$, apply Lemma~\ref{lem:winR} with $\bar u=\frac23-\frac\epsilon2$,
+$v_{\rm lo}=\frac23+\frac\epsilon2$, $\beta=(\bar u^2+v_{\rm lo}^2)/2$, $D_0\le2\kappa$. The last condition becomes
+$\bar\kappa(\frac x2+\frac y4)\le\frac56\bar\kappa<1$ up to vanishing terms, uniformly in $x$. If $x\ge\frac43$,
+apply Lemma~\ref{lem:winV} with $v_{\rm lo}=\frac76$, uniformly in $x$. Hence $U_-\ge(\frac23-\epsilon)\kappa$
+for all $v_0$ once $t_0$ is large.
+\end{proof}
+
+\begin{remark}[comparison with the data and with E2b]
+The finite-depth minima $\min_{v_0}u^*/\kappa=0.770,0.751,0.722,0.695,0.682$ at $t_0=5,11,50,10^3,10^5$
+(\texttt{results/theory\_E2.json}, key \texttt{E2b}) decrease towards $2/3$, and the observed argmin
+$v_0/\kappa\approx0.62$--$0.64$ is close to $2/3$. A sharper finite-$t_0$ check
+(\texttt{theory/check\_scaling.py}: merge iff $h<1$, persist iff $u\ge$ the critical trajectory from
+$\kappa_{\rm hi}$) at $t_0=10^5$ gives, for $x=0.1,0.3,0.5,0.6,\frac23,0.7,0.8,0.9$:
+$u^*/\kappa=0.937,0.837,0.737,0.692,0.684,0.703,0.800,0.900$, against
+$\varphi=0.950,0.850,0.750,0.700,0.667,0.700,0.800,0.900$. On the branch $\varphi=x$ the agreement is already
+exact at finite $t_0$, consistent with the symmetric line, Proposition~\ref{prop:exact}(d). On the branch
+$1-x/2$ the finite-$t_0$ boundary lies slightly \emph{below} $\varphi$. A plausible (unproved) explanation:
+once $\{2,3\}$ has merged, $h$ loses mass at rate $\approx\frac54w_1u$ by \eqref{eq:I2}, against $2w_1u$ for the
+isolated pair. So the relevant finite-$t_0$ threshold for $h$ is somewhat below $\kappa(t_0)$, while both tend to $1$.
+\end{remark}
+
+\begin{remark}[how explicit is $T^*$]
+The constants in Theorem~\ref{thm:B2} are explicit but crude; \texttt{theory/constants.py} optimises
+$(a,b,\beta)$ on a grid. Uniform persistence for $x\in[0.3,0.5]$, $y\ge0.9$ (a $10\%$ rescue) holds for
+$t_0\ge2.0\cdot10^8$, and for $x\in[0.4,0.6]$, $y\ge0.85$ for $t_0\ge8.4\cdot10^{15}$. Near the corner $x=y=2/3$,
+$T^*$ is astronomically large ($5\cdot10^{110}$ for $x\in[0.55,0.75]$, $y\ge0.8$), because the proof needs a
+polynomial separation of the time scales $t_0^{v_0^2}\ll t_0^{u_0^2}$. Uniform merging in the race region
+holds for $x\in[0.85,0.95]$, $y\le0.5$ from $t_0\ge1.9\cdot10^{10}$. For moderate $t_0$ the macroscopic
+rescue is established only by the validated computations (Theorem~3 of the main text, E2).
+\end{remark}
+
+%=====================================================================
+\section{Summary of what is proved}
+%=====================================================================
+\begin{itemize}
+\item Proposition~\ref{prop:dichotomy}: on every graph, limits exist and every limiting edge length is $0$ or $\ge\sqrt c$.
+This relies on Touri--Nedi\'c~\cite{TN14}.
+\item Theorem~\ref{thm:A} and Corollaries~\ref{cor:ball}--\ref{cor:asym}: planted partition under $D_k\le(1-2\eta)\sqrt c$
+and $\dist(C_k,C_l)\ge(\delta+2\eta)\sqrt c$. The separation threshold is $\kappa(t_0)$ to leading order, and the mixing
+constant is sharp (Proposition~\ref{prop:sharpA}). E4: certified for $\sigma\le0.1$ (100/100 runs).
+\item Proposition~\ref{prop:exact}: the exact criterion \emph{gap 1 persists iff $\inf_t(u+v/2)\ge1$}, the exact merge region
+$u_0+v_0/2<1$ for every $t_0$, and the symmetric line.
+\item Theorem~\ref{thm:B1}: one-step rescue for every $t_0\ge2$ and every $v_0>0$, with explicit depth.
+\item Theorem~\ref{thm:B2} and Corollary~\ref{cor:B2}: the scaling limit $\varphi(x)=\max\{x,1-x/2\}$ ($x<1$),
+$\varphi=1$ ($x>1$); $\min\varphi=2/3$ at $x=2/3$.
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{TN14} B.~Touri and A.~Nedi\'c. Product of random stochastic matrices.
+\emph{IEEE Trans.\ Automatic Control} 59(2):437--448, 2014. arXiv:1110.1751.
+\bibitem{HT13} J.~M.~Hendrickx and J.~N.~Tsitsiklis. Convergence of type-symmetric and cut-balanced
+consensus seeking systems. \emph{IEEE Trans.\ Automatic Control} 58(1):214--218, 2013. arXiv:1102.2361.
+\end{thebibliography}
+
+\end{document}

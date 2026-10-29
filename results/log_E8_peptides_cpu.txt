@@ -1,0 +1,38 @@
+[     0.0s] peptides: device cpu, 0 runs already done
+[  3504.5s]   peptides gcn_res      K= 32 seed 0: val AP 0.2709 test AP 0.2676 (3492s)
+[     0.0s] peptides: device cpu, 2 runs already done
+[     0.0s] peptides: device cpu, 2 runs already done
+Traceback (most recent call last):
+  File "/private/tmp/claude-501/-Users-arlsan-hse-gnn/cbb2d9cd-c26f-4808-ae71-25a80e20c566/scratchpad/e8snap/exp_real.py", line 510, in <module>
+    {"predict": run_predict, "node": run_node, "peptides": run_peptides, "trained": run_trained,
+  File "/private/tmp/claude-501/-Users-arlsan-hse-gnn/cbb2d9cd-c26f-4808-ae71-25a80e20c566/scratchpad/e8snap/exp_real.py", line 296, in run_peptides
+    P = pep_prepare()
+        ^^^^^^^^^^^^^
+  File "/private/tmp/claude-501/-Users-arlsan-hse-gnn/cbb2d9cd-c26f-4808-ae71-25a80e20c566/scratchpad/e8snap/exp_real.py", line 217, in pep_prepare
+    P = load_peptides()
+        ^^^^^^^^^^^^^^^
+  File "/private/tmp/claude-501/-Users-arlsan-hse-gnn/cbb2d9cd-c26f-4808-ae71-25a80e20c566/scratchpad/e8snap/real_data.py", line 46, in load_peptides
+    items = torch.load(os.path.join(ROOT, "peptides_func", "peptidesfunc", f"{split}.pt"), weights_only=True)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Caskroom/miniforge/base/lib/python3.12/site-packages/torch/serialization.py", line 1565, in load
+    with _open_file_like(f, "rb") as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Caskroom/miniforge/base/lib/python3.12/site-packages/torch/serialization.py", line 795, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Caskroom/miniforge/base/lib/python3.12/site-packages/torch/serialization.py", line 776, in __init__
+    super().__init__(open(name, mode))  # noqa: SIM115
+                     ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/claude-501/-Users-arlsan-hse-gnn/cbb2d9cd-c26f-4808-ae71-25a80e20c566/scratchpad/e8snap/data/raw/peptides_func/peptidesfunc/train.pt'
+[     0.0s] peptides: device cpu, 2 runs already done
+[ 12252.0s]   peptides gat_res      K= 32 seed 0: val AP 0.3900 test AP 0.3790 (12241s)
+[ 12872.2s]   peptides gcn          K=  8 seed 0: val AP 0.3449 test AP 0.3365 (620s)
+[ 13533.0s]   peptides gcn_res      K=  8 seed 0: val AP 0.3867 test AP 0.3783 (661s)
+[ 14358.3s]   peptides gcnii        K=  8 seed 0: val AP 0.3181 test AP 0.3097 (825s)
+[ 16639.7s]   peptides gat_res      K=  8 seed 0: val AP 0.4352 test AP 0.4211 (2281s)
+[ 18025.6s]   peptides gauss_const  K=  8 seed 0: val AP 0.2514 test AP 0.2470 (1386s)
+[ 18291.2s]   peptides gcn          K=  2 seed 0: val AP 0.3570 test AP 0.3494 (266s)
+[ 18603.6s]   peptides gcnii        K=  2 seed 0: val AP 0.3181 test AP 0.3074 (312s)
+[ 19233.6s]   peptides gat_res      K=  2 seed 0: val AP 0.3827 test AP 0.3725 (630s)
+[ 19650.0s]   peptides gauss_cool   K=  2 seed 0: val AP 0.2596 test AP 0.2539 (416s)
+[ 19650.7s] done

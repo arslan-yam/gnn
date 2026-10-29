@@ -1,0 +1,35 @@
+\begin{tabular}{lcccccc}
+\toprule
+model & $K=2$ & $K=8$ & $K=16$ & $K=32$ & $K=64$ & $K=128$\\
+\midrule
+\multicolumn{7}{l}{\emph{sparse cross-edges ($p_x=0.05$)}}\\
+MLP ($K=0$) & \multicolumn{6}{c}{.324\,{\tiny$\pm$.030}}\\
+GCN & .693\,{\tiny$\pm$.019} & .882\,{\tiny$\pm$.045} & .388\,{\tiny$\pm$.143} & .318\,{\tiny$\pm$.011} & .316\,{\tiny$\pm$.008} & .322\,{\tiny$\pm$.009}\\
+GCN + residual & .529\,{\tiny$\pm$.027} & .768\,{\tiny$\pm$.052} & .796\,{\tiny$\pm$.042} & .853\,{\tiny$\pm$.030} & .413\,{\tiny$\pm$.194} & .337\,{\tiny$\pm$.028}\\
+GCN + PairNorm & \textbf{.747}\,{\tiny$\pm$.032} & \textbf{.894}\,{\tiny$\pm$.025} & .913\,{\tiny$\pm$.016} & \textbf{.939}\,{\tiny$\pm$.030} & .857\,{\tiny$\pm$.085} & .645\,{\tiny$\pm$.073}\\
+GCNII & .711\,{\tiny$\pm$.035} & .877\,{\tiny$\pm$.047} & \textbf{.929}\,{\tiny$\pm$.037} & .892\,{\tiny$\pm$.036} & .778\,{\tiny$\pm$.034} & .791\,{\tiny$\pm$.031}\\
+APPNP & .458\,{\tiny$\pm$.043} & .522\,{\tiny$\pm$.035} & .534\,{\tiny$\pm$.026} & .536\,{\tiny$\pm$.030} & .537\,{\tiny$\pm$.030} & .537\,{\tiny$\pm$.030}\\
+SGC & .471\,{\tiny$\pm$.032} & .621\,{\tiny$\pm$.030} & .693\,{\tiny$\pm$.018} & .780\,{\tiny$\pm$.039} & .876\,{\tiny$\pm$.036} & .826\,{\tiny$\pm$.107}\\
+GAT & .701\,{\tiny$\pm$.049} & .848\,{\tiny$\pm$.029} & .760\,{\tiny$\pm$.072} & .654\,{\tiny$\pm$.084} & .319\,{\tiny$\pm$.009} & .319\,{\tiny$\pm$.009}\\
+GAT + residual & .541\,{\tiny$\pm$.032} & .749\,{\tiny$\pm$.056} & .809\,{\tiny$\pm$.042} & .831\,{\tiny$\pm$.050} & .763\,{\tiny$\pm$.060} & .357\,{\tiny$\pm$.023}\\
+GRAND (linear) & .444\,{\tiny$\pm$.031} & .683\,{\tiny$\pm$.044} & .778\,{\tiny$\pm$.029} & .807\,{\tiny$\pm$.049} & \textbf{.878}\,{\tiny$\pm$.020} & \textbf{.894}\,{\tiny$\pm$.019}\\
+Gaussian, constant $T$ & .442\,{\tiny$\pm$.035} & .644\,{\tiny$\pm$.047} & .754\,{\tiny$\pm$.043} & .810\,{\tiny$\pm$.037} & .779\,{\tiny$\pm$.073} & .759\,{\tiny$\pm$.070}\\
+Gaussian, cooled & .451\,{\tiny$\pm$.029} & .638\,{\tiny$\pm$.047} & .759\,{\tiny$\pm$.041} & .783\,{\tiny$\pm$.048} & .750\,{\tiny$\pm$.069} & .662\,{\tiny$\pm$.029}\\
+dot-product, cooled & .513\,{\tiny$\pm$.040} & .781\,{\tiny$\pm$.023} & .801\,{\tiny$\pm$.079} & .779\,{\tiny$\pm$.089} & .734\,{\tiny$\pm$.070} & .697\,{\tiny$\pm$.036}\\
+\midrule
+\multicolumn{7}{l}{\emph{dense cross-edges ($p_x=0.2$)}}\\
+MLP ($K=0$) & \multicolumn{6}{c}{.332\,{\tiny$\pm$.014}}\\
+GCN & .672\,{\tiny$\pm$.037} & .758\,{\tiny$\pm$.034} & .365\,{\tiny$\pm$.078} & .334\,{\tiny$\pm$.013} & .334\,{\tiny$\pm$.019} & .329\,{\tiny$\pm$.017}\\
+GCN + residual & .491\,{\tiny$\pm$.030} & .731\,{\tiny$\pm$.051} & .772\,{\tiny$\pm$.032} & .809\,{\tiny$\pm$.023} & .403\,{\tiny$\pm$.120} & .323\,{\tiny$\pm$.011}\\
+GCN + PairNorm & \textbf{.732}\,{\tiny$\pm$.012} & \textbf{.878}\,{\tiny$\pm$.043} & \textbf{.913}\,{\tiny$\pm$.021} & \textbf{.876}\,{\tiny$\pm$.047} & .748\,{\tiny$\pm$.043} & .742\,{\tiny$\pm$.124}\\
+GCNII & .691\,{\tiny$\pm$.041} & .843\,{\tiny$\pm$.055} & .856\,{\tiny$\pm$.064} & .688\,{\tiny$\pm$.078} & .686\,{\tiny$\pm$.070} & .679\,{\tiny$\pm$.074}\\
+APPNP & .430\,{\tiny$\pm$.055} & .474\,{\tiny$\pm$.039} & .464\,{\tiny$\pm$.015} & .457\,{\tiny$\pm$.020} & .457\,{\tiny$\pm$.019} & .457\,{\tiny$\pm$.019}\\
+SGC & .481\,{\tiny$\pm$.043} & .543\,{\tiny$\pm$.030} & .562\,{\tiny$\pm$.031} & .611\,{\tiny$\pm$.012} & .439\,{\tiny$\pm$.102} & .345\,{\tiny$\pm$.036}\\
+GAT & .633\,{\tiny$\pm$.021} & .761\,{\tiny$\pm$.085} & .584\,{\tiny$\pm$.055} & .352\,{\tiny$\pm$.043} & .324\,{\tiny$\pm$.012} & .324\,{\tiny$\pm$.012}\\
+GAT + residual & .536\,{\tiny$\pm$.037} & .706\,{\tiny$\pm$.052} & .716\,{\tiny$\pm$.043} & .785\,{\tiny$\pm$.018} & .706\,{\tiny$\pm$.069} & .333\,{\tiny$\pm$.022}\\
+GRAND (linear) & .449\,{\tiny$\pm$.024} & .619\,{\tiny$\pm$.040} & .659\,{\tiny$\pm$.030} & .709\,{\tiny$\pm$.056} & \textbf{.759}\,{\tiny$\pm$.048} & \textbf{.756}\,{\tiny$\pm$.027}\\
+Gaussian, constant $T$ & .407\,{\tiny$\pm$.048} & .562\,{\tiny$\pm$.044} & .626\,{\tiny$\pm$.063} & .629\,{\tiny$\pm$.045} & .486\,{\tiny$\pm$.083} & .372\,{\tiny$\pm$.090}\\
+Gaussian, cooled & .405\,{\tiny$\pm$.048} & .551\,{\tiny$\pm$.039} & .571\,{\tiny$\pm$.057} & .598\,{\tiny$\pm$.045} & .401\,{\tiny$\pm$.064} & .341\,{\tiny$\pm$.035}\\
+dot-product, cooled & .491\,{\tiny$\pm$.035} & .679\,{\tiny$\pm$.043} & .692\,{\tiny$\pm$.060} & .598\,{\tiny$\pm$.077} & .456\,{\tiny$\pm$.015} & .359\,{\tiny$\pm$.040}\\
+\bottomrule
+\end{tabular}

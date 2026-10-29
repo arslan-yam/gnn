@@ -1,0 +1,14 @@
+\begin{tabular}{lccc}
+\toprule
+model & $K=2$ & $K=8$ & $K=32$\\
+\midrule
+\multicolumn{4}{l}{\emph{Peptides-func (average precision, one seed)}}\\
+MLP ($K=0$) & \multicolumn{3}{c}{.253}\\
+GCN & .349 & .337 & .169\\
+GCN + residual & .346 & .378 & .268\\
+GCNII & .307 & .310 & .281\\
+GAT + residual & \textbf{.373} & \textbf{.421} & \textbf{.379}\\
+Gaussian, constant $T$ & .253 & .247 & .247\\
+Gaussian, cooled & .254 & .246 & .247\\
+\bottomrule
+\end{tabular}

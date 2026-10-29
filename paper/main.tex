@@ -1,0 +1,820 @@
+\documentclass[10pt]{article}
+\usepackage[textwidth=5.5in,textheight=9in,centering]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{placeins}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\usepackage[capitalise,noabbrev]{cleveref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\diam}{\operatorname{diam}}
+\newcommand{\conv}{\operatorname{conv}}
+\newcommand{\Nmax}{N_{\max}}
+\newcommand{\TODO}[1]{\textcolor{red}{[TODO: #1]}}
+\crefname{equation}{}{}
+\sloppy\emergencystretch=2em
+
+\title{Predicting Cluster Formation in Deep Graph Attention Networks:\\
+Phase Transitions, Topology, and Feature Geometry}
+\author{Anonymous authors}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Deep graph attention networks with a fixed temperature oversmooth: all node features collapse to one point.
+We ask the question that remains when depth does \emph{not} collapse everything: which clusters survive, and
+can they be predicted from the input? We study Gaussian (distance-based) graph attention under logarithmic
+cooling $T_t=c/\log(t+t_0)$, the schedule at which merging and separation balance. Classical annealing
+arguments give the leading-order picture: feature gaps shorter than $\sqrt c$ close, longer gaps may survive.
+Our results concern what that picture misses.
+(i) For two blocks with arbitrary cut ratios we prove an exact threshold law. Gaps below $\sqrt c\,\kappa(t_0)$
+merge and gaps at or above it persist. The limiting gap jumps from $0$ to exactly $\sqrt c$ at the threshold. The
+threshold follows its own trajectory through depth. Topology enters only at second order, through the sum
+$\lambda$ of the cut ratios: $\kappa(t_0)=1+[\log L-\frac12\log\log L+\frac12\log\lambda+o(1)]/L$ with
+$L=\log t_0$.
+(ii) In layered chains, neighbours can rescue a gap but never destroy one, so the isolated-pair rule makes only
+one-sided errors. The rescue is large: in three-layer chains the normalised rescue boundary converges to
+$\varphi(x)=\max\{x,1-x/2\}$, so gaps down to $2/3$ of the threshold survive.
+(iii) On general graphs every limiting edge length is $0$ or at least $\sqrt c$, and planted partitions survive at
+the $\sqrt c$ scale, with a matching impossibility result.
+(iv) For learned query--key attention, including dot-product attention with biases, the two-block law holds for the smaller of the two
+directed attention margins: exactly for symmetric pairs, and to leading order in general. At a fixed symmetric part, key biases and key norms
+only make clusters merge earlier, and a negative symmetric part makes features oscillate forever.
+Validated numerics certify a three-layer phase diagram (99.6\% of a $240\times240$ grid).
+The theory gives a cheap diagnostic: threshold the margins after a few layers. It predicts 99.1\% of final gaps in random chains after 10
+layers and the final partition of noisy community graphs with ARI $\ge0.99$ for feature noise up to $\sigma=0.3$. A learned metric $W$ enters
+only through $z=Wh$, so the theory states which class distinctions a trained metric must place above the threshold. In trained dot-product
+networks that are near their limit the rule predicts the partition they converge to (ARI $0.97$); in the others it shows that the accuracy
+at the trained depth rests on a transient that further depth destroys. We do not propose a new architecture: trained cooled Gaussian networks stay
+within $0.007$ of an MLP at every depth, but residual and normalised baselines beat them where propagation helps.
+\end{abstract}
+
+%=====================================================================
+\section{Introduction}\label{sec:intro}
+%=====================================================================
+
+Stacking message-passing layers makes node features similar. For graph convolutions this oversmoothing is
+exponential in depth~\citep{li2018,oono2020,cai2020,rusch2023}, and \citet{wu2023} showed that attention with a fixed
+temperature cannot prevent it: features still converge to a single point. Self-attention on the sphere behaves
+differently. There, tokens form several clusters, which persist for exponentially long times~\citep{geshkovski2023,
+geshkovski2024metastable,bruno2025}. Clusters, not consensus, are therefore the generic long-depth outcome of
+attention-type dynamics once the attention sharpens. This raises a question that the oversmoothing literature does not
+address: \emph{given the graph and the input features, which clusters will a deep attention network form?}
+
+We answer this question for the simplest model in which it is non-trivial: Gaussian graph attention
+$\alpha_{ij}\propto\exp(-\|W(h_i-h_j)\|^2/T_t)$ with logarithmic cooling $T_t=c/\log(t+t_0)$. Under this
+schedule the unnormalised weight across a gap $d$ decays like $t^{-d^2/c}$, which is summable exactly when $d>\sqrt c$.
+This is the mechanism of Hajek's criterion for simulated annealing~\citep{hajek1988,geman1984}, and it gives the leading-order
+rule ``gaps below $\sqrt c$ close''. We do not claim this rule. Our point of departure is the observation that it is
+wrong at every finite depth, and wrong in a structured way. In one sentence: \emph{logarithmic cooling turns a globally
+supported Gaussian kernel into an effective bounded-confidence model} in the sense of
+Hegselmann--Krause~\citep{hegselmann2002,blondel2009}, \emph{whose confidence radius $\sqrt c\,\kappa(t_0)$ we compute
+exactly, and whose nonlocal corrections we quantify.} Learned query--key attention obeys the same law, applied to the smaller of
+the two directed attention margins of a pair (\cref{sec:learned}).
+
+\paragraph{Contributions.}
+\begin{itemize}[leftmargin=1.3em,itemsep=2pt]
+\item \textbf{An exact two-block threshold law} (\cref{thm:two-block}). For two blocks with arbitrary cut ratios
+$\rho_A,\rho_B$ there is a threshold $\kappa(t_0;\rho_A,\rho_B)>1$ such that gaps below $\sqrt c\,\kappa$ merge and gaps at or
+above it persist. At the threshold the limiting gap jumps from $0$ to exactly $\sqrt c$, a first-order transition. The
+threshold obeys a critical-curve identity $\kappa(t_0+t)=F_{t-1}\circ\dots\circ F_0(\kappa(t_0))$. We determine its
+asymptotics to second order, $\kappa-1=[\log L-\frac12\log\log L+\frac12\log(\rho_A+\rho_B)+o(1)]/L$ with $L=\log t_0$:
+topology enters only at second order, and only through $\rho_A+\rho_B$. We also prove the third term, and give explicit two-sided
+bounds and validated enclosures.
+\item \textbf{One-sided errors and an early-depth rule} (\cref{lem:comparison,thm:chain}). In layered chains, a gap can
+only gain from its neighbours. The isolated-pair rule therefore never predicts persistence wrongly, and the rule ``persist iff
+$g(t_1)\ge\kappa(t_0+t_1)$'' becomes monotonically more accurate with $t_1$.
+\item \textbf{A quantitative nonlocal rescue law} (\cref{thm:rescue,thm:cap}). For three layers we prove an exact
+persistence criterion, a rescue for every $t_0$ and every neighbouring gap, and the scaling limit
+$u^*/\kappa\to\varphi(v_0/\kappa)$ with $\varphi(x)=\max\{x,1-x/2\}$ for $x<1$. Gaps down to $2/3$ of the threshold survive. A
+computer-assisted theorem certifies the finite-$t_0$ phase diagram (\cref{fig:phase}).
+\item \textbf{General graphs} (\cref{prop:dichotomy,thm:planted,prop:sharp}). Every limiting edge length is $0$ or
+$\ge\sqrt c$. Planted partitions survive when blocks have diameter below $\sqrt c$ and adjacent blocks are separated by
+$\kappa(t_0)\sqrt c$ to leading order, and the diameter condition cannot be relaxed.
+\item \textbf{Learned attention} (\cref{sec:learned}). For quadratic scores, which include dot-product attention with query and key
+biases, the margin of an edge splits into a Gaussian part, a key potential and a rotation (\cref{prop:margin}). On two blocks the dynamics
+depends on the score only through the two directed margins. The pair merges iff the smaller margin falls to $c$. Symmetric pairs follow the
+Gaussian law exactly, and in general the critical smaller margin is $c\,\kappa(t_0)^2$ to leading order (\cref{thm:learned}). A score with a
+negative symmetric part makes features oscillate forever (\cref{prop:oscillation}), and GAT scores cannot hold two clusters apart in their
+linear regime.
+\item \textbf{Prediction in practice} (\cref{sec:prediction}). The early-depth rule predicts 99.1\% of final gaps after 10 layers in
+random five-layer chains. On noisy contextual SBMs the threshold-graph rule recovers the final partition with ARI $\ge0.99$ up
+to $\sigma=0.3$, including fragmentation into $\approx7$ clusters. With a learned metric, the theory states which class
+distinctions survive depth.
+\item \textbf{Trained networks} (\cref{sec:downstream}). We train cooled Gaussian and dot-product networks against ten baselines on five
+synthetic tasks and two real graphs, and rerun 150 trained dot-product networks to 4000 layers. A trained network is either near its limiting
+partition, which the directed rule predicts after a few layers, or in a transient whose accuracy further depth destroys.
+\end{itemize}
+
+\paragraph{Scope.} We do not propose cooled attention as a new architecture. Cooled Gaussian attention is the analysable model: trained, it never falls more than
+$0.005$ below an MLP in accuracy at any depth on our seven node tasks ($0.007$ in average precision on Peptides-func), because the frozen phase is always reachable, but residual and normalised baselines beat
+it wherever propagation helps. The payoff is predictive: which distinctions a deep attention network keeps, which metric keeps them, and
+whether a trained network's accuracy at its trained depth will survive further depth.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig1_phase.pdf}
+\caption{\textbf{Nonlocal rescue in the three-layer chain.}
+(a)~Certified limiting partition at $t_0=11$ on a $240\times240$ grid of initial gaps $(u_0,v_0)$, in units of $\sqrt c$.
+Shades give the number of final clusters. Orange dots mark the 208 grid points (0.36\%) that the validated computation
+did not resolve; they lie on phase boundaries. Dashed lines mark the isolated-pair threshold $\kappa(11)\approx1.539$.
+Below the horizontal line, gap~1 would merge if it were isolated. In the bulge it persists, because gap~2 closes first and
+pulls layer~2 away (\cref{thm:rescue}).
+(b)~Normalised persistence threshold $u^*(v_0)/\kappa(t_0)$ for $t_0$ from $5$ to $10^5$ (light to dark; float estimates), shown for
+$v_0<\kappa(t_0)$, together with the scaling limit $\varphi$ of \cref{thm:rescue}(c). The minimum approaches $2/3$.}
+\label{fig:phase}
+\end{figure}
+
+%=====================================================================
+\section{Related work}\label{sec:related}
+%=====================================================================
+
+\paragraph{Oversmoothing and attention.}
+Oversmoothing of graph convolutions is exponential in depth~\citep{li2018,oono2020,cai2020}; see~\citet{rusch2023} for a
+survey. \citet{wu2023} proved that graph attention with a fixed temperature also oversmooths. \citet{ma2025} characterise
+when attention helps over convolution (structure noise versus feature noise); our noisy-feature regime, in which PairNorm is the best model
+from depth 32 on, agrees with their prediction that attention does not help when feature noise dominates. \citet{turan2026} obtain non-homogeneous limits from activation-induced bifurcations, a different
+mechanism. \citet{zhang2026} argue that oversmoothing should be measured by the effective rank~\citep{roy2007}; we report it.
+Remedies include residual and initial connections~\citep{chen2020gcnii,klicpera2019}, normalisation~\citep{zhao2020pairnorm} and
+continuous diffusion~\citep{chamberlain2021}; we use them as baselines in \cref{sec:downstream}.
+
+\paragraph{Clustering in attention dynamics.}
+\citet{geshkovski2023} showed that self-attention dynamics on the sphere cluster. Clusters are metastable and merge after
+exponentially long times~\citep{geshkovski2024metastable,bruno2025}; causal masking changes the limit~\citep{karagodin2024}.
+\citet{gao2026} report an attention-condensation transition above a sharpness threshold. These works study transformers at a
+fixed inverse temperature without a graph. Our cooling schedule turns metastable clusters into permanent ones, and the graph
+supplies the topology whose effect we quantify. \citet{brody2022} showed that GAT computes static attention, in which the ranking of keys
+does not depend on the query; \cref{rem:gat} gives a dynamical consequence.
+
+\paragraph{Bounded confidence and consensus.}
+In the Hegselmann--Krause model~\citep{hegselmann2002} agents average only over neighbours within a confidence radius $R$.
+Limiting clusters are at least $R$ apart~\citep{blondel2009}, compactly supported kernels give local
+consensus~\citep{jabin2014,motsch2014}, and whether two groups merge can depend on agents between them: mediator agents, equally
+spaced agents and the $2R$ conjecture~\citep{slanina2011,hegarty2014,wang2017}. Our \cref{prop:dichotomy} is the soft-kernel,
+cooled analogue of the separation fact. Our rescue law is a quantitative counterpart of the qualitative mediator phenomenon: we
+did not find an exact rescue boundary in this literature. Merging along edges with non-summable weights is the infinite-flow
+theorem of \citet{touri2014}. The cut-balanced theorem of \citet{hendrickx2013} does not apply in discrete time here, because the
+attention weights are not bounded below.
+
+\paragraph{Annealing.}
+For simulated annealing with $T_t=c/\log t$, \citet{hajek1988} showed convergence to global minima iff $c$ is at least the depth of the
+deepest non-global well, through the same summability dichotomy. The leading-order $\sqrt c$ threshold is therefore classical. The
+exact finite-$t_0$ law, the jump, the critical curve and the topology correction are not covered by these results.
+
+\paragraph{Bounded confidence and temperature as architectures.}
+Hegselmann--Krause-style message passing has been proposed to mitigate oversmoothing~\citep{zhou2026odnet,wang2025bimp}, and learnable
+attention temperatures exist~\citep{ma2026gated}. We do not propose cooled Gaussian attention as a new architecture. We use it as the
+analysable model in which cluster formation can be predicted, and we test in \cref{sec:downstream} where it helps and where it does not.
+
+%=====================================================================
+\section{Setup}\label{sec:setup}
+%=====================================================================
+
+\paragraph{Model.} Let $G=(V,E)$ be a finite undirected graph with a self-loop at every node, $N[i]$ the closed neighbourhood of
+$i$ and $\Nmax=\max_i|N[i]|$. Node features $h_i(t)\in\R^p$ evolve by
+\begin{equation}\label{eq:model}
+h_i(t+1)=\sum_{j\in N[i]}\alpha_{ij}(t)\,h_j(t),\qquad
+\alpha_{ij}(t)=\frac{\exp\big(-\|W(h_i(t)-h_j(t))\|^2/T_t\big)}{\sum_{k\in N[i]}\exp\big(-\|W(h_i(t)-h_k(t))\|^2/T_t\big)} .
+\end{equation}
+This is the propagation core of a deep attention GNN: one shared scoring rule, no value matrix and no nonlinearity, as in
+oversmoothing analyses~\citep{wu2023,geshkovski2023}. The metric $W\in\R^{q\times p}$ is fixed (learned, in \cref{sec:prediction}).
+
+\begin{remark}[the metric is absorbed]\label{rem:metric}
+Let $z_i=Wh_i$. Then $z_i(t+1)=\sum_j\alpha_{ij}(t)z_j(t)$ with $\alpha$ computed from $\|z_i-z_j\|$, so $z$ follows
+\eqref{eq:model} with $W=I$, and every result below applies to $z$. The values $h$ use the same weights. By
+\cref{prop:dichotomy}, edges whose $z$-endpoints merge have non-summable weights, so their $h$-endpoints merge as well. Edges whose
+$z$-endpoints stay apart have $W(h_i^\infty-h_j^\infty)\ne0$. Hence \emph{the limiting partition of $h$ equals that of $z$}, and a
+learned metric decides which distinctions survive only through the distances $\|W(h_i-h_j)\|$.
+\end{remark}
+
+\paragraph{Temperature.} With a constant temperature the dynamics oversmooths.
+
+\begin{proposition}[constant temperature]\label{prop:constT}
+If $G$ is connected and $T_t\equiv T>0$, then all $h_i(t)$ converge to a common limit, exponentially fast.
+\end{proposition}
+
+We therefore study logarithmic cooling $T_t=c/\log(t+t_0)$ with $c>0$ and $t_0>1$ (our graph experiments use $t_0=|V|+2$). We
+measure lengths in units of $\sqrt c$ and write $s_t:=t+t_0$. With $W=I$ the unnormalised weights become
+\begin{equation}\label{eq:weights}
+w_{ij}(t)=s_t^{-\|z_i(t)-z_j(t)\|^2},\qquad \alpha_{ij}=w_{ij}/\pi_i,\qquad \pi_i=\sum_{k\in N[i]}w_{ik}\in[1,\Nmax].
+\end{equation}
+Since $\sum_t s_t^{-d^2}$ diverges iff $d\le1$, a gap that stays below $1$ is forced to close, and a gap that stays above $1$ sees
+summable attention. The difficulty is that gaps move. An edge \emph{merges} if $\|z_i-z_j\|\to0$ and \emph{persists} if its
+length has a positive $\liminf$.
+
+\paragraph{Two-block graphs.} A graph with vertex partition $V=A\sqcup B$ is \emph{block-regular} if every node of $A$ has exactly
+$k_A$ closed neighbours in $A$ and $e_A\ge1$ neighbours in $B$, and symmetrically for $B$. Its \emph{cut ratios} are
+$\rho_A=e_A/k_A$ and $\rho_B=e_B/k_B$. We write $\lambda=\rho_A+\rho_B$, $P=\rho_A\rho_B$, and assume $P\le1$. Examples: two
+layers of the layered graph below ($\rho_A=\rho_B=1$); two $k$-cliques joined by a perfect matching ($\rho=1/k$).
+
+\begin{lemma}[two-block reduction]\label{lem:reduction}
+On a block-regular graph, block-constant features stay block-constant, and the gap $d_t=\|z_A(t)-z_B(t)\|$ obeys
+\begin{equation}\label{eq:twoblock}
+d_{t+1}=F_t(d_t):=d_t\,\psi(a_t),\qquad \psi(a)=\frac{1-Pa^2}{(1+\rho_Aa)(1+\rho_Ba)},\qquad a_t=s_t^{-d_t^2}.
+\end{equation}
+For $\rho_A=\rho_B=1$ this is $d'=d\,(1-a)/(1+a)$.
+\end{lemma}
+
+\paragraph{Layered chains.} The layered graph $G_{r,m}$ has $r$ layers of $m$ nodes. Each layer is a clique, consecutive layers are
+completely joined, and there are no other edges. With scalar, layer-constant, ordered features $x_1\le\dots\le x_r$, the gaps
+$g_l=x_{l+1}-x_l$ ($1\le l<r$) obey, with $w_l=s_t^{-g_l^2}$, $w_0=w_r=0$, $D_l=1+w_{l-1}+w_l$, $A=1+w_{l-1}$ and $B=1+w_{l+1}$,
+\begin{equation}\label{eq:chain}
+g_l'=g_l\,\frac{AB-w_l^2}{D_lD_{l+1}}+\frac{w_{l+1}g_{l+1}}{D_{l+1}}+\frac{w_{l-1}g_{l-1}}{D_l}.
+\end{equation}
+All three terms are nonnegative. The first is the isolated two-layer map with extra damping; the other two are pushes from the
+neighbouring gaps.
+
+\paragraph{Validated numerics.} Several results are computer-assisted. We evaluate \eqref{eq:twoblock} and \eqref{eq:chain} in
+interval arithmetic~\citep{tucker2011} and stop as soon as an analytic certificate proves the fate of every gap
+(\cref{app:numerics}). Persistence is certified by a tail bound (certificate C1, \cref{thm:two-block}(vi)), merging by a block-diameter
+bound (C2). Statements called \emph{proved} use \texttt{mpmath} interval arithmetic at 160 bits~\citep{mpmath}. Statements called
+\emph{certified} use float64 intervals with outward rounding, where $\exp$ and $\log$ are padded by 4 ulp; they are rigorous provided the
+platform's elementary functions are accurate to 4 ulp.
+
+%=====================================================================
+\section{Two blocks: an exact threshold law}\label{sec:twoblock}
+%=====================================================================
+
+\begin{theorem}[two-block law]\label{thm:two-block}
+Let $\rho_A,\rho_B>0$ with $P=\rho_A\rho_B\le1$, $t_0>1$, and let $d_t$ follow \eqref{eq:twoblock} from $d_0>0$.
+\begin{enumerate}[label=(\roman*),leftmargin=2em,itemsep=1pt]
+\item \emph{Dichotomy.} $d_\infty=\lim_td_t$ exists and $d_\infty\in\{0\}\cup[1,\infty)$. Moreover $d_\infty=0$ iff $d_T\le1$ for some $T$.
+\item \emph{Threshold.} There is $\kappa=\kappa(t_0;\rho_A,\rho_B)\in(1,\infty)$ such that the gap merges iff $d_0<\kappa$.
+\item \emph{First-order jump.} $d_0\mapsto d_\infty$ is nondecreasing and right-continuous, and $d_\infty(\kappa)=1$. The limiting gap
+jumps from $0$ to exactly $\sqrt c$ at the threshold.
+\item \emph{Critical curve and monotonicity.} $\kappa(t_0+k)=F_{k-1}\circ\dots\circ F_0(\kappa(t_0))$ for $k\in\N$. Moreover $\kappa$ is
+nonincreasing in $t_0$ and nondecreasing in $\rho_A$ and in $\rho_B$.
+\item \emph{Second-order asymptotics.} For fixed $\rho_A,\rho_B$, with $L=\log t_0\to\infty$,
+\[
+\kappa(t_0;\rho_A,\rho_B)=1+\frac{\log L-\frac12\log\log L+\frac12\log(\rho_A+\rho_B)+o(1)}{L}.
+\]
+Equivalently, in physical units with initial temperature $T_0=c/\log t_0$, the critical gap $d_{\rm crit}$ satisfies
+$d_{\rm crit}^2=c+T_0\big[2\log\frac c{T_0}-\log\log\frac c{T_0}+\log(\rho_A+\rho_B)+o(1)\big]$ as $T_0\to0$.
+\item \emph{Explicit bounds.} $\kappa(t_0)\ge1+\varepsilon_-$, where $\varepsilon_-$ is the unique root of
+$\varepsilon(2\varepsilon+\varepsilon^2)=\lambda_-\,t_0^{-(2\varepsilon+\varepsilon^2)}$ and
+$\lambda_-=\sum_{X\in\{A,B\}}\rho_X/(1+\rho_X/t_0)$. Conversely (certificate C1), if $1<\delta<d_0$ and
+\begin{equation}\label{eq:C1}
+\log d_0-\Lambda_\delta\,\frac{(t_0-1)^{1-\delta^2}}{\delta^2-1}\ \ge\ \log\delta,\qquad
+\Lambda_\delta=\lambda+\frac{Pq}{1-Pq^2},\quad q=t_0^{-\delta^2},
+\end{equation}
+then $d_t\ge\delta$ for all $t$, so $\kappa(t_0)\le d_0$.
+\end{enumerate}
+\end{theorem}
+
+The proof is in \cref{app:twoblock}. Part~(i) is the soft-kernel analogue of the bounded-confidence separation
+fact~\citep{blondel2009}, and the limit $\kappa\to1$ in part~(v) is Hajek's summability criterion~\citep{hajek1988}. The new content is
+(ii)--(vi) at finite $t_0$ and the expansion in (v), whose error is $o(1/\log t_0)$. The proof of (v) compares the trajectory with explicit barriers
+$1+X(\log s_t)$, $X(\tau)=(\log\tau-\frac12\log\log\tau+\frac12\log\lambda\pm\eta)/\tau$: with $+\eta$ the map cannot cross the barrier
+from above, with $-\eta$ it cannot cross from below, and below the lower barrier the accumulated attention exceeds the available gap. In
+physical units the effective confidence radius is $\sqrt c\,\kappa(t_0)$, not $\sqrt c$. The excess $d_{\rm crit}^2-c\approx2T_0\log(c/T_0)$
+is the distance that a gap loses before its own weight becomes summable. The correction is large in practice: $\kappa(11)\in[1.53858,1.53909]$, so at $t_0=11$ a gap must be $54\%$ above
+$\sqrt c$ to survive (\cref{tab:kappa}). \Cref{fig:twoblock} shows the enclosures, the jump and the critical slowing down implied by (iii)
+and (iv). Trajectories started just above $\kappa$ follow the critical curve for up to $10^6$ layers before they settle or merge.
+
+\begin{corollary}[topology enters at second order]\label{cor:topology}
+For fixed cut ratios with sums $\lambda=\rho_A+\rho_B$ and $\lambda'=\rho_A'+\rho_B'$,
+\[
+\kappa(t_0;\rho_A,\rho_B)-\kappa(t_0;\rho_A',\rho_B')=\frac{\frac12\log(\lambda/\lambda')+o(1)}{\log t_0}.
+\]
+In physical units the critical squared gap shifts by $T_0\log(\lambda/\lambda')+o(T_0)$. The product $P=\rho_A\rho_B$ does not enter at this
+order.
+\end{corollary}
+
+The reading is an energy--entropy balance. A gap $d$ shrinks at relative rate $\approx\lambda\,e^{-d^2/T_t}$, so multiplying the cut ratios by
+a factor is equivalent to shifting $d^2$ by $T_t$ times its logarithm. Topology matters at finite depth: $\kappa(11)$ ranges from $1.30$ for
+$\rho_A=\rho_B=0.1$ to $1.54$ for $\rho_A=\rho_B=1$ (\cref{tab:rho}). The $o(1)$ term converges slowly when $\lambda$ is small.
+
+\begin{proposition}[third term]\label{prop:third}
+For fixed $\rho_A,\rho_B$, with $\lambda=\rho_A+\rho_B$ and $L=\log t_0\to\infty$,
+\[
+\kappa(t_0;\rho_A,\rho_B)=1+\frac1L\Big[\log L-\tfrac12\log\log L+\tfrac12\log\lambda+\frac{\log\log L-\log\lambda+2+o(1)}{4\log L}\Big].
+\]
+In particular, the topology shift of \cref{cor:topology} is $\frac{\log(\lambda/\lambda')}{2L}\big(1-\frac1{2\log L}\big)+o\big(\frac1{L\log L}\big)$.
+\end{proposition}
+
+The proof (\cref{app:second}) uses the barriers of (v) with $c$ replaced by
+$\frac12\log\lambda+(\log\log\tau-\log\lambda+2\pm\eta)/(4\log\tau)$.
+At this order the $\pm\eta$ term decides the sign of every comparison, including the summation that rules out persistence below the
+lower barrier. The topology shift therefore approaches its limit only like $1-1/(2\log\log t_0)$, which is why it converges so slowly in
+\cref{fig:twoblock}(b).
+
+\begin{remark}[accuracy at finite $t_0$]\label{rem:second}
+For $\lambda=2$ the two-term formula of (v) is already accurate at moderate $t_0$: it lies below the validated enclosures by at most
+$0.05/\log t_0$ for $17\le t_0\le10^4$ (\cref{tab:kappa}). For smaller $\lambda$ the third term is larger and the two-term formula converges
+more slowly (\cref{tab:residual}). Adding the third term reduces the residual by an order of magnitude for $L\gtrsim10^3$, while at small $L$
+it overcorrects. The root $\varepsilon_-$ in (vi) has $-\log\log L$ instead of $-\frac12\log\log L$ in its expansion: the bound
+freezes the gap, while the true gap shrinks along the critical curve, and this costs the extra $\frac12\log\log L/L$.
+\end{remark}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig2_two_block.pdf}
+\caption{\textbf{The two-block law (\cref{thm:two-block}).}
+(a)~Validated enclosures of $\kappa(t_0)$ for $\rho_A=\rho_B=1$ (dots; widths below $0.05$), the explicit bounds of part~(vi) (band),
+the two-term asymptotics of part~(v) (dashed) and its leading term alone (dotted).
+(b)~Topology at second order (\cref{cor:topology}): the threshold shift relative to $\rho=1$, multiplied by $\log t_0$, tends to
+$\frac12\log\rho$ (dashed). Dots: validated enclosures of the discrete map ($t_0\le10^3$); lines: continuum limit up to $t_0=e^{10^5}$. The
+approach is slow, with relative error $\approx1/(2\log\log t_0)$ (\cref{prop:third}).
+(c)~Gap after $10^6$ layers against the initial gap at $t_0=11$. Every point is certified to merge (orange) or to persist (blue). The
+gap jumps from $0$ to at least $\sqrt c$ at $\kappa$ (shaded, width $5\cdot10^{-4}$).
+(d)~Critical slowing down. Trajectories started just above the float estimate $\hat\kappa$ of $\kappa(11)$ follow the critical curve
+$\kappa(t_0+t)$ (squares: validated enclosures, part~(iv)) for up to $10^6$ layers.}
+\label{fig:twoblock}
+\end{figure}
+
+%=====================================================================
+\section{Chains: one-sided errors and nonlocal rescue}\label{sec:chains}
+%=====================================================================
+
+Let $F_t$ denote the isolated two-layer map ($\rho_A=\rho_B=1$) and $\kappa(t_0)=\kappa(t_0;1,1)$.
+
+\begin{lemma}[comparison]\label{lem:comparison}
+Along \eqref{eq:chain} all gaps stay nonnegative and $g_l(t+1)\ge F_t(g_l(t))$ for every $l$ and $t$.
+\end{lemma}
+
+The neighbouring gaps can only push a gap open. This has three consequences.
+
+\begin{theorem}[one-sided errors]\label{thm:chain}
+Consider $G_{r,m}$ with ordered layer-constant features.
+\begin{enumerate}[label=(\alph*),leftmargin=2em,itemsep=1pt]
+\item If $g_l(t_1)\ge\kappa(t_0+t_1)$ for some $t_1$, then $g_l(t)\ge1$ for all $t\ge t_1$; the gap persists.
+\item The isolated-pair rule ``gap $l$ persists iff $g_l(0)\ge\kappa(t_0)$'' never predicts persistence for a gap that merges. All of
+its errors are \emph{rescues}: gaps below $\kappa(t_0)$ that persist.
+\item The early-depth rule $\mathcal R_{t_1}$: ``gap $l$ persists iff $g_l(t_1)\ge\kappa(t_0+t_1)$'' has the same one-sided error. The set
+of gaps it declares persistent is nondecreasing in $t_1$. Every gap with $\lim_tg_l(t)\ne1$ is classified correctly for all large $t_1$.
+\end{enumerate}
+\end{theorem}
+
+The early-depth rule needs only $t_1$ layers of forward computation and the scalar function $\kappa$, which we tabulate once.
+\Cref{sec:prediction} shows that it is accurate already at $t_1=10$.
+
+\paragraph{Three layers.} We now quantify the rescue. Write $u=g_1$, $v=g_2$ for the two gaps of $G_{3,m}$ and $h=u+v/2$, the distance
+from layer~1 to the midpoint of layers~2 and~3. The \emph{rescue boundary} $u^*(v_0)$ is the smallest $u_0$ from which gap~1
+persists; we define the upper and lower versions $U_\pm$ in \cref{app:three}.
+
+\begin{theorem}[nonlocal rescue law]\label{thm:rescue}
+Let $t_0\ge2$.
+\begin{enumerate}[label=(\alph*),leftmargin=2em,itemsep=1pt]
+\item \emph{Exact criterion.} Gap~1 merges whenever $u_0+v_0/2<1$. If $u_0+v_0<2$, gap~1 persists iff $h(t)\ge1$ for all $t$; in that
+case layers 2 and 3 merge and gap~1 converges to $\lim_th(t)$. On the symmetric line $u_0=v_0<1$ both gaps merge.
+\item \emph{Rescue at every $t_0$.} For every $v_0>0$ there is an explicit $R(t_0,v_0)>0$ such that gap~1 persists for every
+$u_0\ge\kappa(t_0)-R$. The isolated rule is wrong on $[\kappa-R,\kappa)$; the neighbour pushes $u$ across the critical curve in one step.
+\item \emph{Scaling limit.} Let $\varphi(x)=\max\{x,1-x/2\}$ for $0<x<1$ and $\varphi(x)=1$ for $x>1$. For every $x\in(0,1)\cup(1,\infty)$,
+\[
+\lim_{t_0\to\infty}\frac{U_\pm(x\,\kappa(t_0);t_0)}{\kappa(t_0)}=\varphi(x),\qquad
+\lim_{t_0\to\infty}\inf_{v_0>0}\frac{U_\pm(v_0;t_0)}{\kappa(t_0)}=\varphi\big(\tfrac23\big)=\tfrac23 .
+\]
+\end{enumerate}
+\end{theorem}
+
+The limit $\varphi$ has a simple reading. If the neighbouring gap is small ($x<2/3$), it closes first, and layer~1 then faces the merged
+pair at distance $h=u+v/2$: gap~1 survives iff $h$ clears the threshold, giving $1-x/2$. If $2/3<x<1$, the two gaps race and the larger
+one survives ($\varphi=x$). If $x>1$, the neighbour persists itself and does not help ($\varphi=1$). Rescue is strongest at $x=2/3$, where a
+gap one third below the isolated threshold still survives. At finite $t_0$ the minimum is $0.770,0.751,0.722,0.695,0.682$ for
+$t_0=5,11,50,10^3,10^5$ (\cref{fig:phase}b). The constant $T^*$ beyond which (c) applies is explicit but huge near the corner $x=2/3$, so
+for moderate $t_0$ we rely on computer-assisted proofs.
+
+\begin{theorem}[computer-assisted, $t_0=11$]\label{thm:cap}
+\begin{enumerate}[label=(\alph*),leftmargin=2em,itemsep=1pt]
+\item (proved) $1.538<\kappa(11)<1.540$.
+\item (proved) The six initial conditions in \cref{tab:rigorous} have the stated limiting partitions. In particular, at $u_0=1.4<\kappa(11)$
+the fate of gap~1 is not monotone in $v_0$: it merges for $v_0=0.1$, persists for $v_0\in\{0.5,0.95\}$ and merges for
+$v_0\in\{1.5,3.0\}$. Also $u_0=1.2$, $22\%$ below $\kappa(11)$, persists for $v_0=0.95$, and $v_0=1.5<\kappa(11)$ persists for $u_0=1.4$.
+\item (certified) On the grid $\{0.0125,0.025,\dots,3\}^2$, $57{,}392$ of $57{,}600$ initial conditions (99.64\%) have a certified
+limiting partition (\cref{fig:phase}a). The smallest certified persisting gap is $u_0=1.1625$ ($24\%$ below $\kappa(11)$), at
+$v_0=0.8875$. No column of the grid has a non-monotone fate in $u_0$.
+\end{enumerate}
+\end{theorem}
+
+%=====================================================================
+\section{General graphs: dichotomy and planted partitions}\label{sec:graphs}
+%=====================================================================
+
+We now return to \eqref{eq:model} on an arbitrary graph with vector features ($W=I$ by \cref{rem:metric}).
+
+\begin{proposition}[universal dichotomy]\label{prop:dichotomy}
+For every graph with self-loops, every $t_0>1$ and every initial condition: (i) every $z_i(t)$ converges to some $z_i^\infty$; (ii) if
+$\sum_tw_{ij}(t)=\infty$ on an edge $\{i,j\}$, then $z_i^\infty=z_j^\infty$; (iii) every limiting edge length
+$\|z_i^\infty-z_j^\infty\|$ lies in $\{0\}\cup[1,\infty)$.
+\end{proposition}
+
+Limiting edge lengths in $(0,\sqrt c)$ are therefore impossible on every graph. The limiting partition is well defined: its blocks are the
+connected components of the edges of length $0$. The proof applies the infinite-flow theorem of \citet{touri2014} to the attention
+matrices, which have a uniformly positive diagonal and are balanced in their sense. Next, let $V=B_1\sqcup\dots\sqcup B_K$ be a planted
+partition. Blocks $k\neq l$ are \emph{adjacent} ($k\sim l$) if an edge joins them, $e_{\max}$ is the largest number of neighbours a node has
+outside its block, and $C_k\supseteq\{z_i(0):i\in B_k\}$ is convex with diameter $D_k$.
+
+\begin{theorem}[planted partitions at the $\sqrt c$ scale]\label{thm:planted}
+Let $t_0\ge2$, let each $G[B_k]$ be connected, and let $\eta\ge0$ and $\delta>1$ satisfy
+\[
+\text{(A1)}\ \ D_k+2\eta\le1\ \ \forall k,\qquad
+\text{(A2)}\ \ \dist(C_k,C_l)\ge\delta+2\eta\ \ \forall k\sim l,
+\]
+\[
+\text{(A3)}\ \ e_{\max}\,\delta\,\frac{(t_0-1)^{1-\delta^2}}{\delta^2-1}\le\eta .
+\]
+Then $z_i(t)\in C_k+\bar B(\eta)$ for all $t$ and $i\in B_k$. Each block converges to a single point $z_k^\infty$, adjacent blocks end at
+distance $\ge\delta$, and the limiting partition is exactly $\{B_1,\dots,B_K\}$.
+\end{theorem}
+
+\begin{corollary}[ball form and leading-order sharpness]\label{cor:planted}
+(a) If block $k$ lies in a ball of radius $r_k$ around $\mu_k$, it suffices that $r_k\le\frac12-\eta$ and
+$\|\mu_k-\mu_l\|\ge r_k+r_l+\delta+2\eta$ for $k\sim l$, with (A3). In physical units: $r\le\sqrt c\,(\frac12-\eta)$ and
+$\Delta\ge2r+(\delta+2\eta)\sqrt c$.
+(b) Fix $e_{\max}$ and $\theta\in(0,1]$. If $D_k\le1-\theta$ and $\dist(C_k,C_l)\ge\Gamma(t_0)$ for $k\sim l$, with an explicit
+$\Gamma(t_0)=1+(1+o(1))\frac{\log\log t_0}{\log t_0}$, the conclusions hold for all large $t_0$. By \cref{thm:two-block}(v), $\Gamma$ matches the
+two-block threshold $\kappa(t_0;\rho_A,\rho_B)$ to leading order for every topology, and separation $\kappa(t_0;\rho_A,\rho_B)$ is necessary
+for block-regular graphs with collapsed blocks. At second order $\Gamma$ is not sharp: $\Gamma-\kappa=(\frac12+o(1))\log\log\log t_0/\log t_0$.
+\end{corollary}
+
+\begin{proposition}[the diameter condition is sharp]\label{prop:sharp}
+For every $D>1$ and $t_0\ge2$ there is a graph with a single connected block and initial features of diameter $D$ whose limit is not a
+consensus. Hence no condition $\max_kD_k\le f(t_0)$ with $f(t_0)>1$ guarantees the planted partition on all graphs.
+\end{proposition}
+
+The construction is two large cliques joined by a perfect matching: the cut ratio $1/k$ makes the threshold of \cref{thm:two-block} drop
+towards $1$. \Cref{thm:planted} removes the factor $1/(4\sqrt\rho)$ ($\rho$ the hop radius of a block) that our earlier path-product
+argument required. On the noisy SBMs of \cref{sec:prediction} it certifies all 100 runs with $\sigma\le0.1$, against 28 runs for the earlier
+condition. It never certifies a run in which the planted partition fails.
+
+%=====================================================================
+\section{Learned query--key attention}\label{sec:learned}
+%=====================================================================
+
+So far the score has been a squared distance. Practical attention layers score pairs with learned queries and keys. We now replace the
+Gaussian score by a quadratic score with the same cooling,
+\begin{equation}\label{eq:qk}
+\alpha_{ij}(t)\propto\exp\big(f(z_i,z_j)\log s_t\big)\ \ (j\in N[i]),\qquad f(x,y)=x^\top Jy-\tfrac12y^\top\Omega y+b^\top y ,
+\end{equation}
+with $c=1$. Dot-product attention with query and key biases, $(W_Qx+q)^\top(W_Ky+k)$, is the case $J=W_Q^\top W_K$, $\Omega=0$ and
+$b=W_K^\top q$; terms that depend only on the query $x$ cancel in the softmax. Gaussian attention with metric $W$ is the case $J=\Omega=2W^\top W$,
+$b=0$. Because $N[i]$ contains $i$, the weights depend on $f$ only through the \emph{directed margins}
+\[
+m_{ij}=f(z_i,z_i)-f(z_i,z_j),\qquad w_{ij}=s_t^{-m_{ij}},\qquad \alpha_{ij}=w_{ij}/\pi_i,\qquad \pi_i={\textstyle\sum_{k\in N[i]}}w_{ik}\ge1 .
+\]
+The margin $m_{ij}$ is how much node $i$ prefers itself to $j$. The Gaussian margin $\|z_i-z_j\|^2$ is nonnegative and symmetric; a learned
+margin is neither.
+
+\begin{proposition}[margin decomposition]\label{prop:margin}
+Let $J_s$ and $J_a$ be the symmetric and antisymmetric parts of $J$, and $\mathcal V(x)=\frac12x^\top(J_s-\Omega)x+b^\top x$. Then
+\[
+m_{ij}=\tfrac12(z_i-z_j)^\top J_s(z_i-z_j)+\mathcal V(z_i)-\mathcal V(z_j)-z_i^\top J_az_j,\qquad m_{ij}+m_{ji}=(z_i-z_j)^\top J_s(z_i-z_j).
+\]
+\end{proposition}
+
+The attention weight is thus a Gaussian kernel in the metric $J_s/2$, times a key prior $s_t^{\mathcal V(z_j)}$, times a rotation factor. The
+Gaussian model is the case in which $\mathcal V$ is constant and $J_a=0$. In dot-product attention $\mathcal V(x)=\frac12x^\top J_sx+b^\top x$, so nodes
+with large keys attract their neighbours. The sum of the two margins of an edge is fixed by $J_s$ alone. The potential and the rotation only
+split it between the two directions.
+
+\paragraph{Two blocks.} On a block-regular graph, block-constant features stay block-constant for every score, and
+\[
+z_B'-z_A'=k\,(z_B-z_A),\qquad k=1-p_A-p_B=\frac{1-Pa_Aa_B}{(1+\rho_Aa_A)(1+\rho_Ba_B)},\qquad p_X=\frac{\rho_Xa_X}{1+\rho_Xa_X},
+\]
+with $a_A=s_t^{-m_{AB}}$ and $a_B=s_t^{-m_{BA}}$ (\cref{lem:reduction-learned}); for $a_A=a_B$ this is the factor $\psi$ of \cref{lem:reduction}. The
+gap keeps its direction $e$, up to sign. Write $M_A=m_{AB}$, $M_B=m_{BA}$, $\sigma=e^\top J_se$ and $\omega=e^\top\Omega e/\sigma$. For the
+score~\eqref{eq:qk} with $\sigma>0$ the two margins form a closed system,
+\begin{equation}\label{eq:margin-map}
+M_X'=k\Big[M_X-(M_A+M_B)\big(\tfrac\omega2(p_A+p_B)+(1-\omega)\,p_X\big)\Big],\qquad X\in\{A,B\},
+\end{equation}
+with $M_A+M_B=\sigma\|z_A-z_B\|^2$. Since $a_Aa_B=s_t^{-(M_A+M_B)}<1$, $k>0$: the blocks never cross. The fate of the pair depends on $J$, $\Omega$ and $b$ only through the two margins and $\omega$:
+dot-product attention has $\omega=0$, Gaussian attention $\omega=1$.
+
+\begin{theorem}[two blocks under learned attention]\label{thm:learned}
+Let $\sigma>0$, $0\le\omega\le1$ and $P=\rho_A\rho_B\le1$.
+\begin{enumerate}[label=(\roman*),leftmargin=2em,itemsep=1pt]
+\item \emph{Dichotomy.} The blocks merge iff $\min(M_A,M_B)\le1$ at some layer. Otherwise both margins decrease to limits $\ge1$, and the blocks
+converge to two distinct points.
+\item \emph{Symmetric pairs.} If $\rho_A=\rho_B$ and $M_A=M_B$ at $t=0$, then $M_A=M_B$ for all $t$, and $\sqrt{M_A}$ follows the Gaussian map
+$F_t$ of~\eqref{eq:twoblock}. Hence the pair persists iff $M_A(0)\ge\kappa(t_0;\rho_A,\rho_A)^2$, and \cref{thm:two-block} applies to
+$\sqrt{M_A}$.
+\item \emph{Bounds.} If the pair persists, then $\min(M_A,M_B)\ge1+\varepsilon_\omega$ at $t=0$, where $\varepsilon_\omega$ is the root of
+$\varepsilon^2=(1-\frac\omega2)\rho_-t_0^{-\varepsilon}$ and $\rho_-=\min_X\rho_X/(1+\rho_X/t_0)$. Conversely (certificate C1$'$), let
+$1<\delta^2<m:=\min(M_A,M_B)$, $R=(M_A+M_B)/\delta^2$, $q=t_0^{-\delta^2}$ and $R\lambda q<1$. If
+\[
+\log\frac m{\delta^2}\ \ge\ \frac{(1+R)\lambda}{1-R\lambda q}\cdot\frac{(t_0-1)^{1-\delta^2}}{\delta^2-1},
+\]
+then both margins stay above $\delta^2$ and the pair persists.
+\item \emph{Leading order.} For every $\bar M$ there are $\gamma_\pm(t_0)=(2+o(1))\log\log t_0/\log t_0$ such that a pair with
+$M_A+M_B\le\bar M$ merges if $\min(M_A,M_B)<1+\gamma_-$ and persists if $\min(M_A,M_B)\ge1+\gamma_+$. To leading order the critical margin is
+$\kappa(t_0)^2$.
+\end{enumerate}
+\end{theorem}
+
+The isolated-pair rule of \cref{sec:twoblock} therefore carries over with one change: the squared gap is replaced by the smaller of the two
+directed margins. A pair is lost through its weaker direction. Since $\min(M_A,M_B)\le\frac12(M_A+M_B)=\frac12\sigma\|z_A-z_B\|^2$, with equality
+iff the potential and the rotation cancel on the pair, the symmetric pairs of (ii) are the most robust. For a fixed symmetric part $J_s$, key biases,
+key norms and rotations can only make a pair merge earlier, to leading order. Beyond leading order the critical value of the weaker margin
+depends on the partner margin. In units of $\kappa(t_0)^2$ it lies between $0.92$ and $1.07$ for partner margins up to $10$, at $t_0=11$ and
+$t_0=10^3$ and for $\omega\in\{0,1\}$ (\cref{fig:learned}a). At every computed point the two critical margins sum to more than
+$2\kappa(t_0)^2$. So at a fixed gap the symmetric split is also the most robust one at finite $t_0$, as far as we computed.
+
+\paragraph{What does not carry over.} Two properties of the Gaussian dynamics fail for learned scores.
+
+\begin{proposition}[oscillation]\label{prop:oscillation}
+Let $f(x,y)=x^\top Jy$ and $\rho_A=\rho_B=\rho\ge1$, and let the blocks start at $z_A=-z_B$ with $\sigma=e^\top J_se<0$. Then $z_A(t)=-z_B(t)$
+for all $t$, and $D_t=(|\sigma|/2)^{1/2}\|z_A(t)-z_B(t)\|$ follows the Gaussian map $F_t$ with cut ratios $(1/\rho,1/\rho)$. If
+$D_0\ge\kappa(t_0;1/\rho,1/\rho)$, the blocks exchange sides at every layer and $D_t\to D_\infty\ge1$, so the features never converge, although
+the attention between the blocks is not summable. Otherwise the blocks merge.
+\end{proposition}
+
+A score whose symmetric part is negative along a direction makes nodes prefer neighbours that differ along it, as a heterophilous attention
+head would. Under cooling such a head turns a two-block structure into a period-two oscillation, and both convergence and part~(ii) of
+\cref{prop:dichotomy} fail. GAT~\citep{velickovic2018} fails in a different way. Its score $\mathrm{LeakyReLU}(u^\top x+v^\top y)$ gives
+$|m_{ij}+m_{ji}|\le(1-\beta)\min(|u^\top(z_i-z_j)|,|v^\top(z_i-z_j)|)$, where $\beta$ is the negative slope, and $m_{ij}=-m_{ji}$ when the four
+arguments of the edge share a sign (\cref{rem:gat}). In that regime one block of a pair has a nonpositive margin, and the gap shrinks by a fixed
+factor at every layer. This is the dynamical side of the static attention of GAT~\citep{brody2022}.
+
+\paragraph{General graphs.} The separation half of \cref{thm:planted} holds for every score
+(\cref{prop:separation}). If the directed margins between adjacent blocks are at least $\delta^2$ on the $\eta$-neighbourhoods of their hulls,
+and $e_{\max}R\,(t_0-1)^{1-\delta^2}/(\delta^2-1)\le\eta$ with $R$ the largest diameter of the union of two such neighbourhoods, then every block
+stays in its neighbourhood and no two adjacent blocks merge. The in-block half of \cref{thm:planted} and \cref{prop:dichotomy} rest on the
+symmetry of the weights, through the cut balance of \citet{touri2014}. Whether the features converge and the limiting partition consists of the components of
+zero-length edges when $J_s\succ0$ is open. For prediction, we use the margin to the best neighbour,
+$m^+_{ij}=\max_{k\in N[i]}f(z_i,z_k)-f(z_i,z_j)\ge m_{ij}$, which sets the weight up to a bounded factor: $s_t^{-m^+_{ij}}/\Nmax\le\alpha_{ij}\le
+s_t^{-m^+_{ij}}$. The \emph{directed threshold-graph rule} returns the components of the edges with $\min(m^+_{ij},m^+_{ji})<\kappa(t_0+t_1)^2$.
+For Gaussian attention it is the rule of \cref{sec:prediction}. On two blocks it is the leading-order rule of \cref{thm:learned}.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig7_learned.pdf}
+\caption{\textbf{Learned attention} (E9). (a)~Critical value of the weaker margin of a two-block pair against the partner margin, both in
+units of $\kappa(t_0)^2$, for dot-product ($\omega=0$) and Gaussian-type ($\omega=1$) scores ($\rho_A=\rho_B=1$; float bisection with the merge test of
+\cref{thm:learned}(i) and certificate C1$'$). The diagonal point is exact by \cref{thm:learned}(ii). (b)~Contextual SBMs under dot-product attention, with all features shifted towards
+block~1 (30 runs per shift). ARI between the final partition and the directed rule, or the rule that uses only the symmetric part
+$\frac12(m_{ij}+m_{ji})$, applied after $t_1$ layers. Dashed vertical line: shift at which the margin between block means equals $\kappa(t_0)^2$.}
+\label{fig:learned}
+\end{figure}
+
+\paragraph{Contextual SBMs (E9).} We test the directed rule on the SBMs of E4 (four blocks, $p_{\rm out}=0.01$, $\sigma\in\{0.1,0.2,0.3\}$) under
+dot-product attention $f(x,y)=x^\top Jy$, with tied ($J=2I$) or untied queries and keys (\cref{app:exp}). With $J_s=2I$ the symmetric part of
+every margin is the squared distance of E4, so a rule that sees only $\frac12(m_{ij}+m_{ji})$ is the Gaussian rule. To create a key potential we
+shift all features by $\nu$ towards block~1. At the block means the margin of every other block towards block~1 then drops from $9$ to
+$9-3\sqrt2\,\nu$, and the reverse margins grow by the same amount. The other blocks are absorbed into block~1 in 29 of 30 runs at $\nu=3$ and in
+part of the runs at $\nu=2$. The symmetric rule cannot see this: applied to the initial features, it predicts at least four clusters at every shift
+(\cref{fig:learned}b). Applied after
+$t_1=20$ layers, the directed rule recovers the final partition with mean ARI $0.91$ at $\nu\ge2$, against $0.81$ for the symmetric rule, and both
+reach $0.99$ at $\nu\le1.5$. In 7 of the 10 runs where its ARI is below $0.9$, the directed rule predicts fewer clusters than form.
+
+At $t_1=0$ the directed rule over-merges. Its errors are one-sided: in 148 of the 150 runs no edge that it predicts to persist ends merged.
+The symmetric rule wrongly predicts persistence for some edges in 83 runs. The cause is that a learned margin is first order in the feature noise, through
+$\mathcal V(z_i)-\mathcal V(z_j)$, while the squared distance is second order. Before the blocks contract, a few cross edges of a well-separated pair
+fall below the threshold, and one such edge joins two predicted components. Five layers remove most of these errors: the mean ARI over all runs
+is $0.55$, $0.93$ and $0.96$ at $t_1=0,5,20$. Blocks also contract towards their high-potential members before they interact, so the
+block-mean margin is only a rough guide: at $\nu=2$ it is $0.51$, below $\kappa^2\approx1.69$, yet most runs end with two to five clusters. No run
+oscillates, as expected for $J_s\succ0$: the largest change in the last layer is $4\cdot10^{-4}$. \Cref{sec:downstream} tests the rule on trained
+dot-product networks.
+
+%=====================================================================
+\section{Predicting clusters}\label{sec:prediction}
+%=====================================================================
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig3_chains.pdf}
+\caption{\textbf{Five-layer chains} ($t_0=17$; 3972 certified random initial conditions; 15,888 gaps).
+(a)~Initial gaps, stacked by final fate. No gap at or above $\kappa(t_0)$ merges (\cref{thm:chain}). Every error of the isolated rule is a
+rescued gap below $\kappa$, down to $0.53\,\kappa$.
+(b)~Accuracy of the early-depth rule $\mathcal R_{t_1}$ against $t_1$. By \cref{thm:chain}(c) it can only improve with $t_1$.}
+\label{fig:chains}
+\end{figure}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig4_sbm.pdf}
+\caption{\textbf{Noisy contextual SBMs} ($K=4$ blocks of 150 nodes, $p=8$, block means $3\sqrt c$ apart, $t_0=602$, 4000 layers; 25 runs
+per $\sigma$).
+(a)~Runs in which the planted partition survives, and runs certified by \cref{thm:planted} (hull form) and by \cref{cor:planted}(a) (ball form).
+(b)~ARI between the threshold-graph prediction and the final partition, with the rule applied at $t_1=0$ or after $t_1=20$ layers
+(mean $\pm$ 95\% CI).
+(c)~Number of final clusters (mean $\pm$ 95\% CI).}
+\label{fig:sbm}
+\end{figure}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig5_metric.pdf}
+\caption{\textbf{A learned metric decides which distinctions survive} (5 seeds). Attention uses $z=Wh$, values are $h$.
+(a)~Linear-probe accuracy against depth. (b)~Number of final feature clusters (geometric mean over seeds).
+Only the metric that places the class distinctions above the threshold keeps the classes to depth 2048.}
+\label{fig:metric}
+\end{figure}
+
+The theory suggests one prediction rule at three levels of generality. For chains, $\mathcal R_{t_1}$ thresholds every gap at
+$\kappa(t_0+t_1)$ after $t_1$ layers (\cref{thm:chain}). For general graphs, the \emph{threshold-graph rule} runs $t_1$ layers and returns the
+connected components of the edges with $\|z_i(t_1)-z_j(t_1)\|<\kappa(t_0+t_1)$, using the two-layer $\kappa$. By
+\cref{prop:dichotomy} the true limiting partition consists of the components of zero-length edges. We test the rules against long runs
+(\cref{app:exp}).
+
+\paragraph{Five-layer chains (E3).} We draw 4000 random gap vectors of $G_{5,m}$ with gaps uniform in $[0.2,2.6]$ at $t_0=17$
+($\kappa\in[1.4908,1.4916]$) and certify the limiting partition of 3972 of them. The isolated rule classifies $91.3\%$ of the $15{,}888$ gaps
+and $68.0\%$ of the partitions correctly. It never predicts persistence wrongly, as \cref{thm:chain}(b) requires. All $1387$ errors are
+rescues, the smallest at $u_0=0.79$, below $\sqrt c$ (\cref{fig:chains}a). The early-depth rule removes most of them: it is correct for
+$94.0\%$, $98.3\%$, $99.1\%$ and $99.96\%$ of the gaps at $t_1=1,5,10$ and $1000$ (\cref{fig:chains}b).
+
+\paragraph{Noisy community graphs (E4).} We use $K=4$ SBM blocks of 150 nodes ($p_{\rm in}=0.2$, $p_{\rm out}\in\{0,0.005,0.01,0.02,0.05\}$),
+features in $\R^8$ with block means at mutual distance $3\sqrt c$ plus isotropic noise $\sigma$, and $t_0=|V|+2=602$, where $\kappa\approx1.301$.
+We run $4000$ layers and read off the limiting partition (\cref{app:exp}). The planted partition survives in every run with
+$\sigma\le0.25$. Beyond that it fragments, into $\approx7$ clusters at $\sigma=0.3$, $67$ at $0.4$ and $214$ at $0.5$
+(\cref{fig:sbm}c). The threshold-graph rule at $t_1=0$ recovers the final partition with ARI $1.00$ up to $\sigma=0.25$ and $0.99$ at
+$\sigma=0.3$, which includes predicting \emph{which} blocks fragment and how. At $\sigma=0.4$ and $0.5$ the ARI drops to $0.82$ and $0.63$;
+applying the rule after $t_1=20$ layers raises it to $0.90$ and $0.67$ (\cref{fig:sbm}b). \Cref{thm:planted} certifies survival for
+$\sigma\le0.1$. For $\sigma\ge0.15$ every run has a block of diameter above $\sqrt c$, so by \cref{prop:sharp} no diameter-based theorem
+can certify these runs. Their survival up to $\sigma=0.25$ comes from dense blocks and concentration of high-dimensional noise, which our
+theory does not capture.
+
+\paragraph{A learned metric decides what survives (E5).} By \cref{rem:metric}, a metric $W$ acts only through $\|W(h_i-h_j)\|$. We build three
+homophilous classes ($3\times120$ nodes) whose means are $1.0\sqrt c$ apart in two signal dimensions, below the threshold
+$\kappa\approx1.318$, plus a binary nuisance factor independent of the class at separation $3\sqrt c$ and four noise dimensions. With $W=I$,
+a linear probe on $h$ is perfect up to depth 128 and at chance from depth 512 on: the class distinctions merge and only the nuisance split
+survives (\cref{fig:metric}). Projecting onto the nuisance factor, or scaling an LDA metric so that class means are only $0.4\kappa$ apart,
+loses the classes by depth 32. Scaling the same LDA metric so that the closest class means are $2\kappa$ apart keeps accuracy $1.0$ to depth
+2048 and ends with 3--5 clusters. The threshold thus gives a concrete design rule: a learned metric must place the distinctions
+that should survive above $\sqrt c\,\kappa(t_0)$, and the distinctions that should be smoothed away below $\sqrt c$.
+
+\begin{table}[!t]
+\centering\footnotesize\setlength{\tabcolsep}{4pt}
+\input{tables/tab_predict_real}
+\caption{\textbf{Predicting clusters on real graphs} (E8, untrained dynamics, 4000 layers). \emph{Clusters}: final partition;
+\emph{predicted}: threshold-graph rule at $t_1=0$. \emph{ARI}: between the rule applied after $t_1$ layers and the final partition.
+\emph{False persist}: share of the edges predicted to persist (endpoints in different
+predicted clusters) whose endpoints end in one cluster. \emph{False merge}: share of the edges predicted to merge whose endpoints end apart.
+Peptides-func: means over 300 test molecules.}
+\label{tab:predict-real}
+\end{table}
+
+\paragraph{Real graphs (E8).} We run the untrained dynamics for 4000 layers on Roman-empire (22,662 nodes, 18 classes, edge homophily
+$0.05$, mean degree $2.9$) and Amazon-ratings (24,492 nodes, 5 classes, homophily $0.38$, mean degree $7.6$)~\citep{platonov2023}, with
+$t_0=|V|+2$, and on 300 test molecules of Peptides-func~\citep{dwivedi2022} (150 atoms on average, $t_0=152$). The values $h$ are the first
+64 principal components of the standardised node features (of the one-hot atom features for Peptides). Attention uses $z=Wh$ with two kinds
+of metric. The first takes the leading 16 principal components (8 for Peptides), scaled so that the median edge has length $s\,\kappa(t_0)$
+with $s\in\{0.5,1,2\}$. The second is an LDA projection fitted on the training nodes, scaled so that the closest pair of class means is
+$2\kappa$ or $0.4\kappa$ apart, as in E5. \Cref{tab:predict-real} compares the threshold-graph rule with the partition after 4000 layers.
+
+The rule recovers the final partition with ARI $0.79$--$1.00$ on Roman-empire and $0.89$--$1.00$ on the molecules. On Amazon-ratings, the
+densest graph, it gets $0.47$--$0.94$. The errors are mostly of one kind, as on chains. Of the edges the rule predicts to persist, at most
+$1.6\%$ end merged on Roman-empire and at most $5\%$ on Amazon-ratings. Of the edges it predicts to merge, up to $40\%$ end apart. On chains
+the first share is exactly zero (\cref{thm:chain}). On graphs it need not be: with vector features the centre of a cluster can be closer to
+a node than any member of the cluster is. Applying the rule after $t_1=20$ layers raises the ARI by up to $0.06$ on the two node graphs.
+On the molecules at scale $s=1$ it lowers the ARI from $0.89$ to $0.79$.
+
+The design rule carries over. With the LDA metric at margin $2\kappa$, a linear probe on Roman-empire keeps its depth-0 accuracy of $0.588$
+through 4000 layers. With the PCA metric the probe falls to $0.29$ at scale $0.5$ and to $0.53$ at scale $2$ (majority class: $0.14$).
+On Amazon-ratings the linear probe is at the majority-class level ($0.37$) at every depth, so there is nothing to lose. One caveat
+concerns the reference partition itself. Near the threshold the dynamics slows down (\cref{thm:two-block}(iv)). The ARI between the
+partitions at layers 2000 and 4000 is $0.92$--$1.00$ on Roman-empire but only $0.61$--$0.99$ on Amazon-ratings, so part of the measured error
+on Amazon-ratings is in the partition read off at layer 4000.
+
+\FloatBarrier
+%=====================================================================
+\section{Deep networks in training}\label{sec:downstream}
+%=====================================================================
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\linewidth]{figures/fig6_depth_synthetic.pdf}
+\caption{\textbf{Trained networks against depth} on the synthetic tasks (E6b, E7): mean test accuracy over 5 seeds, each run tuned over 8
+configurations. (a--c)~CSBMs with 3 classes; (d--e)~ring task in which $2\%$ of the nodes carry the class. Dashed: MLP. All 13 models with
+confidence intervals are in \cref{tab:train-e6b,tab:train-e7}; stars: the cooled dot-product network of \cref{sec:learned}. Gaussian attention with constant temperature is within $0.007$ of the
+cooled version on the CSBMs and up to $0.10$ better on the rings at depth $K\ge32$.}
+\label{fig:depth-synthetic}
+\end{figure}
+
+The theory describes the untrained dynamics~\eqref{eq:model}. We now train it. Our Gaussian networks map the input to $z=Wx$ with a linear
+layer, apply $K$ parameter-free layers of~\eqref{eq:model}, and classify the final states with a linear readout. By \cref{rem:metric}, $W$
+is a learned metric. The scale $c$ of the cooled temperature $c/\log(l+11)$, or a constant temperature $T$, is learned too. It is
+initialised at $m$ times the median squared edge length, with $m\in\{1,1/30\}$ chosen on validation data. We compare with an MLP,
+GCN~\citep{kipf2017}, residual GCN, GCN with PairNorm~\citep{zhao2020pairnorm}, GCNII~\citep{chen2020gcnii}, APPNP~\citep{klicpera2019},
+SGC~\citep{wu2019sgc}, GAT~\citep{velickovic2018}, residual GAT and linear GRAND~\citep{chamberlain2021}. Each (task, model, depth, seed)
+picks the best of 8 configurations on validation accuracy: learning rate, dropout and one model-specific hyperparameter
+(\cref{app:exp}).
+
+\paragraph{Synthetic tasks (E6b, E7).} We use three contextual SBMs~\citep{deshpande2018} with 3 classes of 150 nodes: homophilous with
+clean features, homophilous with noisy features, and heterophilous. We also use a long-range task: three rings of 200 nodes with random
+cross-class edges, where only $2\%$ of the nodes carry class information and a typical node is 12 hops from the nearest informative one.
+\Cref{fig:depth-synthetic} shows test accuracy against depth $K\in\{2,\dots,128\}$. GCN, SGC and GAT fall to chance by $K=16$--$32$ on
+every task. Residual connections postpone the collapse to $K=64$--$128$.
+
+The Gaussian networks behave differently in a way the theory explains. By \cref{prop:dichotomy}, a deep network of this kind ends in a
+partition of the nodes into clusters, and training chooses the partition through $W$ and $c$. Two partitions are always available.
+One cluster per connected component is oversmoothing. The partition into singletons, the frozen phase, reproduces the MLP. Which phase a
+run reaches is set mostly by the initial temperature.
+\begin{itemize}
+\item In the heterophilous CSBM, validation picks the cold start $m=1/30$ in all 30 runs (6 depths, 5 seeds) of each Gaussian model. The
+network then matches the MLP seed by seed, within $0.015$ in test accuracy. At $K=128$ the Gaussian networks are the only models at the MLP level of
+$0.85$. Every baseline is at least $0.12$ below it.
+\item In the clean homophilous CSBM, the default start reaches the class partition and keeps it. The cooled network has accuracy $0.999$
+at every depth from 8 to 128, the best or within $0.001$ of the best.
+\item In the noisy homophilous CSBM the class partition is not reachable at depth. The default start gives $0.984$ at $K=8$, within
+$0.003$ of the best model. From $K=64$ on it collapses to chance ($0.33$, effective rank $1.5$--$3$), and the cold start freezes at the MLP
+level ($0.57$). At $K=32$ two of five seeds still reach the class partition.
+\end{itemize}
+The noisy regime is the case in which the design rule of \cref{sec:prediction} cannot be met. Class means are $1.5$ apart and the noise
+has standard deviation $1$ in every coordinate. Along any direction, a large share of the within-class edges is about as long as the
+distance between class means, so no metric separates the two scales by the factor $\kappa$ that the rule needs. A shallow network stops before the limit and can still smooth partially. A deep one cannot.
+
+On the ring task the Gaussian networks improve with depth up to $K=32$, but stay well below PairNorm and GCNII. The cooled network peaks
+at $0.60$ (dense cross-edges) and $0.78$ (sparse), against $0.91$ and $0.94$ for PairNorm. Similarity-based attention has nothing to work
+with at nodes whose features are pure noise. Here the constant temperature is better at depth, by up to $0.10$, consistent with cooling
+sharpening the attention and so shortening the range of propagation.
+
+\paragraph{Cooled dot-product attention.} The same network with the learned score $\langle W_Qz_i,W_Kz_j\rangle$ of \cref{sec:learned}
+($J=W_Q^\top W_K$, shared by all layers) behaves like the Gaussian one where a coarse partition is wanted. It reaches $0.995$--$0.998$ at every depth on
+the clean CSBM, and on the rings it peaks higher, at $0.80$ (sparse) and $0.69$ (dense) for $K=16$, but still below PairNorm. The difference is the
+frozen phase. A dot-product score need not be largest at $j=i$, so some margins can be negative, and then no temperature makes every node
+keep its own state (\cref{prop:margin}). On the heterophilous CSBM, validation picks the cold start in 28 of 30 runs and the
+network still falls from $0.82$ at $K=2$ to $0.60$--$0.68$ for $K\ge8$, against $0.85$ for the MLP and the Gaussian networks. On the noisy
+CSBM it holds $0.96$ to $K=8$ and drops to about $0.6$ from $K=32$ on.
+
+\paragraph{Do trained networks reach the predicted partition?} For each of the 150 reported dot-product runs we rerun the network's own dynamics,
+with its learned $J$ and $c$, for 4000 layers from its input states (\cref{app:exp}); at layer $K$ this reproduces the trained network's test
+accuracy to $3\cdot10^{-8}$. The two starts then behave differently.
+\begin{itemize}
+\item The 46 cold-start runs are close to their limit at depth $K$. Run to 4000 layers they lose $0.004$ test accuracy on average (at most
+$0.048$), and every one settles into a partition with a few to several hundred clusters. The directed rule applied after $t_1=20$ layers
+recovers it with mean ARI $0.97$, below $0.9$ in 2 runs, and the symmetric rule gets $0.96$. Applied at $t_1=0$ both fail (ARI $0.13$
+and $0.00$). In trained networks the rule thus needs a few layers before it applies, as in E9, and five are not enough (ARI $0.66$).
+\item The 104 default-start runs rely on the transient. Run to 4000 layers they lose $0.29$ test accuracy on average and up to $0.70$. In
+47 of them, all on the rings or the clean CSBM, the partition is still changing at layer 4000. In the 57 others the final partition has one to
+a few clusters, and the directed rule at $t_1=20$ gets mean ARI $0.88$ (symmetric rule $0.94$). Its errors are again one-sided: in 56 of the
+57 runs no edge that it predicts to persist ends merged, and most misses are runs in which it predicts fewer clusters than form, often one where two form.
+\end{itemize}
+Training makes $J_s$ indefinite in 37 runs, 31 of them on the rings, with $\lambda_{\min}(J_s)$ down to $-1.8$. None of them oscillates: the
+largest change in the last layer is $4\cdot10^{-5}$. \Cref{prop:oscillation} is for a specific configuration, and trained networks do not
+reach one. A trained network at depth $K$ is thus either near its limiting partition, which the directed rule predicts after a few
+layers, or in a transient whose accuracy the limit does not keep.
+
+\paragraph{Real graphs (E8).} We train the Gaussian networks and the ten baselines on Roman-empire and Amazon-ratings with $K\in\{2,4,8,16,32\}$ and width 64, on
+three of the ten official splits, with the learning rate tuned per model and depth on split 0 (\cref{tab:train-e8}). Roman-empire repeats
+the heterophilous CSBM. The cooled network freezes, ending with $21{,}500$--$22{,}200$ clusters on $22{,}662$ nodes, and holds the MLP
+accuracy ($0.642$--$0.643$ against $0.644$) at every depth, while GCN, SGC and GAT fall to $0.13$--$0.19$ by $K=32$. Residual GCN and residual
+GAT are much better at moderate depth ($0.79$--$0.80$ at $K=4$--$8$) but drop to $0.60$--$0.63$ at $K=32$. On Amazon-ratings the cooled
+network ($0.415$--$0.419$ for $K\le16$) beats the MLP ($0.386$) but not PairNorm ($0.470$).
+
+Run to 4000 layers, the trained cooled Gaussian networks fall into the same two groups as the dot-product networks. On Roman-empire their test
+accuracy changes by at most $0.006$, and the threshold-graph rule applied after $K$ layers recovers the final partition with ARI
+$0.79$--$0.99$. On Amazon-ratings every network falls to the majority-class level ($0.37$--$0.38$), and its partition is still changing at
+layer 4000 (ARI between layers 2000 and 4000 as low as $0.12$): these networks use the transient.
+On Peptides-func, a long-range molecular benchmark, propagation helps (\cref{tab:train-e8-pep}, one seed, $K\in\{2,8,32\}$). Residual GAT
+reaches average precision $0.421$ at $K=8$ against $0.253$ for the MLP, and plain GCN falls from $0.349$ at $K=2$ to $0.169$ at $K=32$,
+below the MLP. Both Gaussian networks stay at the MLP level ($0.246$--$0.254$) at every depth, cooled or not: on these graphs they keep the
+MLP's accuracy but do not use the graph.
+
+\paragraph{Summary.} The cooled Gaussian network is an analysable model, not a competitive architecture. Because the frozen phase is always
+reachable, its mean accuracy is never more than $0.005$ below the MLP's at any depth on the seven node tasks, and its average precision on
+Peptides-func never more than $0.007$ below; residual and normalised baselines beat
+it wherever propagation helps. What the theory adds is prediction: which distinctions survive, which metric keeps them, and whether the
+accuracy of a trained network at depth $K$ is a property of its limit or of a transient.
+
+%=====================================================================
+\section{Discussion and limitations}\label{sec:discussion}
+%=====================================================================
+
+\paragraph{What is proved and what is not.} \Cref{thm:two-block,thm:chain,thm:rescue,thm:planted} and
+\cref{prop:dichotomy,prop:sharp,prop:third} and \cref{cor:topology} are analytic. So are \cref{thm:learned,prop:margin,prop:oscillation,prop:separation}. \Cref{thm:cap} is computer-assisted. The survival of
+noisy blocks with diameter above $\sqrt c$ (E4) is an observation without proof, and so is the dependence of the critical weaker margin
+on the partner margin in \cref{fig:learned}(a), which is a float computation. The scaling limit
+in \cref{thm:rescue}(c) holds beyond an explicit but astronomically large $t_0$ near the corner $x=2/3$. The quantitative chain theory is
+for scalar, layer-constant features; \cref{prop:dichotomy,thm:planted} cover vector features on general graphs, but only through
+sufficient conditions.
+
+\paragraph{Model scope.} \Cref{eq:model} has no value matrix, nonlinearity, residual connection or multiple heads. \Cref{rem:metric} covers
+a fixed learned metric and \cref{sec:learned} a fixed quadratic query--key score. A layer-dependent score changes the margins layer by layer,
+and our rules then apply only between changes. For learned scores the exact theory is for two blocks; on general graphs we have only the
+separation result of \cref{prop:separation}, and whether \cref{prop:dichotomy} extends to scores with $J_s\succ0$ is open. Logarithmic cooling is a modelling choice that makes the threshold finite and nontrivial. We do not claim that it is the best
+schedule for training.
+
+\paragraph{Using the theory.} The early-depth rule is a cheap diagnostic for distance-based and query--key attention: run a few layers,
+threshold the directed margins at $\kappa(t_0+t_1)^2$, and read off the partition the network converges to. Comparing it with the labels shows
+which distinctions depth will erase, and the design rule says how to scale a metric so that it keeps the right ones. In trained networks the
+same comparison tells whether accuracy at the trained depth will survive further depth. Extending the theory to layer-dependent scores, value
+maps and residual connections is the main open step.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\clearpage
+\appendix
+\input{appendix}
+
+\end{document}

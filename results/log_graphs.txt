@@ -1,0 +1,9 @@
+[    0.0s] E4 noisy SBM: prediction of the limiting partition
+[    8.0s]   kappa(t0 + t1) = {0: 1.3014737812777337, 5: 1.301219970512177, 20: 1.3004734153976827}
+[  193.1s]   250 runs
+[  193.2s] E5 learned metric
+[  207.1s]   identity                     acc@0 0.999  acc@64 1.000  acc@2048 0.315
+[  207.1s]   learned (LDA, calibrated)    acc@0 0.999  acc@64 0.999  acc@2048 1.000
+[  207.1s]   nuisance projection          acc@0 0.999  acc@64 0.315  acc@2048 0.315
+[  207.1s]   learned (LDA, too small)     acc@0 0.999  acc@64 0.320  acc@2048 0.320
+[  207.1s] done

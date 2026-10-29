@@ -1,0 +1,50 @@
+\begin{tabular}{lcccccc}
+\toprule
+model & $K=2$ & $K=8$ & $K=16$ & $K=32$ & $K=64$ & $K=128$\\
+\midrule
+\multicolumn{7}{l}{\emph{heterophilous}}\\
+MLP ($K=0$) & \multicolumn{6}{c}{.850\,{\tiny$\pm$.026}}\\
+GCN & .886\,{\tiny$\pm$.014} & .332\,{\tiny$\pm$.021} & .324\,{\tiny$\pm$.007} & .324\,{\tiny$\pm$.018} & .325\,{\tiny$\pm$.014} & .333\,{\tiny$\pm$.021}\\
+GCN + residual & .962\,{\tiny$\pm$.012} & \textbf{.975}\,{\tiny$\pm$.008} & \textbf{.964}\,{\tiny$\pm$.013} & \textbf{.949}\,{\tiny$\pm$.017} & .501\,{\tiny$\pm$.237} & .341\,{\tiny$\pm$.034}\\
+GCN + PairNorm & .893\,{\tiny$\pm$.024} & .750\,{\tiny$\pm$.038} & .652\,{\tiny$\pm$.074} & .593\,{\tiny$\pm$.055} & .578\,{\tiny$\pm$.051} & .555\,{\tiny$\pm$.046}\\
+GCNII & .851\,{\tiny$\pm$.035} & .836\,{\tiny$\pm$.032} & .810\,{\tiny$\pm$.057} & .721\,{\tiny$\pm$.044} & .723\,{\tiny$\pm$.036} & .720\,{\tiny$\pm$.048}\\
+APPNP & .841\,{\tiny$\pm$.018} & .728\,{\tiny$\pm$.023} & .729\,{\tiny$\pm$.023} & .729\,{\tiny$\pm$.023} & .729\,{\tiny$\pm$.023} & .729\,{\tiny$\pm$.023}\\
+SGC & .883\,{\tiny$\pm$.015} & .350\,{\tiny$\pm$.051} & .324\,{\tiny$\pm$.012} & .324\,{\tiny$\pm$.012} & .324\,{\tiny$\pm$.012} & .324\,{\tiny$\pm$.012}\\
+GAT & .885\,{\tiny$\pm$.014} & .365\,{\tiny$\pm$.086} & .322\,{\tiny$\pm$.015} & .322\,{\tiny$\pm$.015} & .322\,{\tiny$\pm$.015} & .322\,{\tiny$\pm$.015}\\
+GAT + residual & \textbf{.966}\,{\tiny$\pm$.014} & .960\,{\tiny$\pm$.024} & .961\,{\tiny$\pm$.012} & .927\,{\tiny$\pm$.037} & \textbf{.913}\,{\tiny$\pm$.026} & .320\,{\tiny$\pm$.016}\\
+GRAND (linear) & .811\,{\tiny$\pm$.027} & .714\,{\tiny$\pm$.038} & .649\,{\tiny$\pm$.054} & .581\,{\tiny$\pm$.057} & .519\,{\tiny$\pm$.063} & .325\,{\tiny$\pm$.016}\\
+Gaussian, constant $T$ & .850\,{\tiny$\pm$.026} & .850\,{\tiny$\pm$.024} & .852\,{\tiny$\pm$.029} & .851\,{\tiny$\pm$.028} & .851\,{\tiny$\pm$.027} & .842\,{\tiny$\pm$.024}\\
+Gaussian, cooled & .850\,{\tiny$\pm$.026} & .849\,{\tiny$\pm$.026} & .847\,{\tiny$\pm$.026} & .850\,{\tiny$\pm$.030} & .845\,{\tiny$\pm$.027} & \textbf{.849}\,{\tiny$\pm$.027}\\
+dot-product, cooled & .821\,{\tiny$\pm$.046} & .676\,{\tiny$\pm$.049} & .618\,{\tiny$\pm$.088} & .620\,{\tiny$\pm$.076} & .635\,{\tiny$\pm$.077} & .599\,{\tiny$\pm$.048}\\
+\midrule
+\multicolumn{7}{l}{\emph{homophilous, clean}}\\
+MLP ($K=0$) & \multicolumn{6}{c}{.994\,{\tiny$\pm$.010}}\\
+GCN & .996\,{\tiny$\pm$.002} & .947\,{\tiny$\pm$.051} & .494\,{\tiny$\pm$.227} & .311\,{\tiny$\pm$.014} & .327\,{\tiny$\pm$.012} & .312\,{\tiny$\pm$.014}\\
+GCN + residual & .998\,{\tiny$\pm$.002} & .984\,{\tiny$\pm$.020} & .990\,{\tiny$\pm$.010} & .990\,{\tiny$\pm$.004} & .971\,{\tiny$\pm$.021} & .578\,{\tiny$\pm$.238}\\
+GCN + PairNorm & .992\,{\tiny$\pm$.004} & .982\,{\tiny$\pm$.006} & .984\,{\tiny$\pm$.007} & .982\,{\tiny$\pm$.012} & .981\,{\tiny$\pm$.011} & .985\,{\tiny$\pm$.005}\\
+GCNII & .994\,{\tiny$\pm$.004} & .993\,{\tiny$\pm$.004} & .995\,{\tiny$\pm$.003} & .996\,{\tiny$\pm$.003} & .996\,{\tiny$\pm$.003} & .996\,{\tiny$\pm$.003}\\
+APPNP & .997\,{\tiny$\pm$.001} & .998\,{\tiny$\pm$.002} & .997\,{\tiny$\pm$.001} & .997\,{\tiny$\pm$.001} & .997\,{\tiny$\pm$.001} & .997\,{\tiny$\pm$.001}\\
+SGC & .995\,{\tiny$\pm$.004} & .982\,{\tiny$\pm$.007} & .983\,{\tiny$\pm$.004} & .420\,{\tiny$\pm$.200} & .313\,{\tiny$\pm$.023} & .313\,{\tiny$\pm$.023}\\
+GAT & .991\,{\tiny$\pm$.004} & .981\,{\tiny$\pm$.010} & .775\,{\tiny$\pm$.121} & .322\,{\tiny$\pm$.015} & .322\,{\tiny$\pm$.015} & .322\,{\tiny$\pm$.015}\\
+GAT + residual & .995\,{\tiny$\pm$.008} & .993\,{\tiny$\pm$.004} & .995\,{\tiny$\pm$.003} & .993\,{\tiny$\pm$.004} & .980\,{\tiny$\pm$.011} & .448\,{\tiny$\pm$.043}\\
+GRAND (linear) & \textbf{.999}\,{\tiny$\pm$.001} & .999\,{\tiny$\pm$.002} & .998\,{\tiny$\pm$.002} & .996\,{\tiny$\pm$.004} & .996\,{\tiny$\pm$.004} & .997\,{\tiny$\pm$.001}\\
+Gaussian, constant $T$ & .991\,{\tiny$\pm$.004} & \textbf{.999}\,{\tiny$\pm$.001} & .999\,{\tiny$\pm$.002} & \textbf{.999}\,{\tiny$\pm$.001} & .997\,{\tiny$\pm$.003} & \textbf{1.000}\,{\tiny$\pm$.000}\\
+Gaussian, cooled & .992\,{\tiny$\pm$.004} & \textbf{.999}\,{\tiny$\pm$.001} & \textbf{.999}\,{\tiny$\pm$.001} & \textbf{.999}\,{\tiny$\pm$.001} & \textbf{.999}\,{\tiny$\pm$.001} & .999\,{\tiny$\pm$.001}\\
+dot-product, cooled & .996\,{\tiny$\pm$.004} & .998\,{\tiny$\pm$.004} & .997\,{\tiny$\pm$.003} & .998\,{\tiny$\pm$.003} & .995\,{\tiny$\pm$.004} & .998\,{\tiny$\pm$.003}\\
+\midrule
+\multicolumn{7}{l}{\emph{homophilous, noisy}}\\
+MLP ($K=0$) & \multicolumn{6}{c}{.573\,{\tiny$\pm$.045}}\\
+GCN & .981\,{\tiny$\pm$.006} & .971\,{\tiny$\pm$.014} & .407\,{\tiny$\pm$.187} & .311\,{\tiny$\pm$.014} & .327\,{\tiny$\pm$.012} & .312\,{\tiny$\pm$.014}\\
+GCN + residual & .950\,{\tiny$\pm$.031} & .986\,{\tiny$\pm$.005} & .986\,{\tiny$\pm$.006} & .976\,{\tiny$\pm$.020} & .616\,{\tiny$\pm$.281} & .425\,{\tiny$\pm$.134}\\
+GCN + PairNorm & .970\,{\tiny$\pm$.015} & .981\,{\tiny$\pm$.007} & .985\,{\tiny$\pm$.009} & \textbf{.988}\,{\tiny$\pm$.008} & \textbf{.983}\,{\tiny$\pm$.007} & \textbf{.983}\,{\tiny$\pm$.007}\\
+GCNII & .966\,{\tiny$\pm$.014} & .980\,{\tiny$\pm$.010} & .962\,{\tiny$\pm$.022} & .948\,{\tiny$\pm$.020} & .938\,{\tiny$\pm$.030} & .941\,{\tiny$\pm$.014}\\
+APPNP & .953\,{\tiny$\pm$.022} & .942\,{\tiny$\pm$.030} & .947\,{\tiny$\pm$.023} & .943\,{\tiny$\pm$.018} & .943\,{\tiny$\pm$.018} & .943\,{\tiny$\pm$.018}\\
+SGC & \textbf{.981}\,{\tiny$\pm$.012} & .982\,{\tiny$\pm$.005} & .979\,{\tiny$\pm$.007} & .396\,{\tiny$\pm$.152} & .326\,{\tiny$\pm$.024} & .326\,{\tiny$\pm$.024}\\
+GAT & .970\,{\tiny$\pm$.012} & .977\,{\tiny$\pm$.010} & .721\,{\tiny$\pm$.071} & .322\,{\tiny$\pm$.015} & .322\,{\tiny$\pm$.015} & .322\,{\tiny$\pm$.015}\\
+GAT + residual & .943\,{\tiny$\pm$.022} & \textbf{.987}\,{\tiny$\pm$.007} & \textbf{.989}\,{\tiny$\pm$.007} & .978\,{\tiny$\pm$.012} & .964\,{\tiny$\pm$.013} & .461\,{\tiny$\pm$.088}\\
+GRAND (linear) & .895\,{\tiny$\pm$.030} & .976\,{\tiny$\pm$.012} & .981\,{\tiny$\pm$.006} & .962\,{\tiny$\pm$.016} & .979\,{\tiny$\pm$.012} & .973\,{\tiny$\pm$.006}\\
+Gaussian, constant $T$ & .956\,{\tiny$\pm$.027} & .983\,{\tiny$\pm$.010} & .967\,{\tiny$\pm$.010} & .689\,{\tiny$\pm$.187} & .571\,{\tiny$\pm$.049} & .567\,{\tiny$\pm$.036}\\
+Gaussian, cooled & .956\,{\tiny$\pm$.025} & .984\,{\tiny$\pm$.009} & .961\,{\tiny$\pm$.012} & .693\,{\tiny$\pm$.188} & .573\,{\tiny$\pm$.045} & .571\,{\tiny$\pm$.047}\\
+dot-product, cooled & .967\,{\tiny$\pm$.014} & .960\,{\tiny$\pm$.016} & .897\,{\tiny$\pm$.063} & .635\,{\tiny$\pm$.118} & .587\,{\tiny$\pm$.061} & .605\,{\tiny$\pm$.059}\\
+\bottomrule
+\end{tabular}
